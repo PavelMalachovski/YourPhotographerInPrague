@@ -13,7 +13,6 @@ on:
       
 jobs:
   my_testing:
-  
     runs-on: ubuntu-latest
 
     steps:
@@ -22,9 +21,9 @@ jobs:
       
   
   my_deployment:
-  
     runs-on: ubuntu-latest
-
+    needs: [my_testing]
+    
     steps:
     - name: Print Hello Message
       run: echo "This is my_deployment step"
