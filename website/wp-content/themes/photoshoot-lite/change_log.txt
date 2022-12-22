@@ -1,0 +1,8 @@
+Version 1.0
+i) Intial version Release
+
+Version 1.1
+i) Added skip to content button and used proper escape functions.
+
+Version 1.1.1
+i) Made some changes in theme files.

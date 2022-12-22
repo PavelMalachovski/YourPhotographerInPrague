@@ -1,0 +1,37 @@
+[23-Aug-2022 09:30:48 America/Chicago] PHP Warning:  Use of undefined constant ABSPATH - assumed 'ABSPATH' (this will throw an Error in a future version of PHP) in /home1/pmalakhouski/public_html/wp-includes/functions.php on line 8
+[23-Aug-2022 09:30:48 America/Chicago] PHP Warning:  Use of undefined constant WPINC - assumed 'WPINC' (this will throw an Error in a future version of PHP) in /home1/pmalakhouski/public_html/wp-includes/functions.php on line 8
+[23-Aug-2022 09:30:48 America/Chicago] PHP Warning:  require(ABSPATHWPINC/option.php): failed to open stream: No such file or directory in /home1/pmalakhouski/public_html/wp-includes/functions.php on line 8
+[23-Aug-2022 09:30:48 America/Chicago] PHP Warning:  require(ABSPATHWPINC/option.php): failed to open stream: No such file or directory in /home1/pmalakhouski/public_html/wp-includes/functions.php on line 8
+[23-Aug-2022 09:30:48 America/Chicago] PHP Fatal error:  require(): Failed opening required 'ABSPATHWPINC/option.php' (include_path='.:/opt/cpanel/ea-php74/root/usr/share/pear') in /home1/pmalakhouski/public_html/wp-includes/functions.php on line 8
+[13-Sep-2022 06:33:10 America/Chicago] PHP Warning:  Use of undefined constant ABSPATH - assumed 'ABSPATH' (this will throw an Error in a future version of PHP) in /home1/pmalakhouski/public_html/wp-includes/functions.php on line 8
+[13-Sep-2022 06:33:10 America/Chicago] PHP Warning:  Use of undefined constant WPINC - assumed 'WPINC' (this will throw an Error in a future version of PHP) in /home1/pmalakhouski/public_html/wp-includes/functions.php on line 8
+[13-Sep-2022 06:33:10 America/Chicago] PHP Warning:  require(ABSPATHWPINC/option.php): failed to open stream: No such file or directory in /home1/pmalakhouski/public_html/wp-includes/functions.php on line 8
+[13-Sep-2022 06:33:10 America/Chicago] PHP Warning:  require(ABSPATHWPINC/option.php): failed to open stream: No such file or directory in /home1/pmalakhouski/public_html/wp-includes/functions.php on line 8
+[13-Sep-2022 06:33:10 America/Chicago] PHP Fatal error:  require(): Failed opening required 'ABSPATHWPINC/option.php' (include_path='.:/opt/cpanel/ea-php74/root/usr/share/pear') in /home1/pmalakhouski/public_html/wp-includes/functions.php on line 8
+[14-Sep-2022 07:33:04 America/Chicago] PHP Warning:  Use of undefined constant ABSPATH - assumed 'ABSPATH' (this will throw an Error in a future version of PHP) in /home1/pmalakhouski/public_html/wp-includes/functions.php on line 8
+[14-Sep-2022 07:33:04 America/Chicago] PHP Warning:  Use of undefined constant WPINC - assumed 'WPINC' (this will throw an Error in a future version of PHP) in /home1/pmalakhouski/public_html/wp-includes/functions.php on line 8
+[14-Sep-2022 07:33:04 America/Chicago] PHP Warning:  require(ABSPATHWPINC/option.php): failed to open stream: No such file or directory in /home1/pmalakhouski/public_html/wp-includes/functions.php on line 8
+[14-Sep-2022 07:33:04 America/Chicago] PHP Warning:  require(ABSPATHWPINC/option.php): failed to open stream: No such file or directory in /home1/pmalakhouski/public_html/wp-includes/functions.php on line 8
+[14-Sep-2022 07:33:04 America/Chicago] PHP Fatal error:  require(): Failed opening required 'ABSPATHWPINC/option.php' (include_path='.:/opt/cpanel/ea-php74/root/usr/share/pear') in /home1/pmalakhouski/public_html/wp-includes/functions.php on line 8
+[20-Sep-2022 21:43:52 America/Chicago] PHP Fatal error:  Uncaught Error: Call to undefined function wp_using_themes() in /home1/pmalakhouski/public_html/wp-includes/template-loader.php:7
+Stack trace:
+#0 {main}
+  thrown in /home1/pmalakhouski/public_html/wp-includes/template-loader.php on line 7
+[25-Sep-2022 22:08:20 America/Chicago] PHP Warning:  Use of undefined constant ABSPATH - assumed 'ABSPATH' (this will throw an Error in a future version of PHP) in /home1/pmalakhouski/public_html/wp-includes/functions.php on line 8
+[25-Sep-2022 22:08:20 America/Chicago] PHP Warning:  Use of undefined constant WPINC - assumed 'WPINC' (this will throw an Error in a future version of PHP) in /home1/pmalakhouski/public_html/wp-includes/functions.php on line 8
+[25-Sep-2022 22:08:20 America/Chicago] PHP Warning:  require(ABSPATHWPINC/option.php): failed to open stream: No such file or directory in /home1/pmalakhouski/public_html/wp-includes/functions.php on line 8
+[25-Sep-2022 22:08:20 America/Chicago] PHP Warning:  require(ABSPATHWPINC/option.php): failed to open stream: No such file or directory in /home1/pmalakhouski/public_html/wp-includes/functions.php on line 8
+[25-Sep-2022 22:08:20 America/Chicago] PHP Fatal error:  require(): Failed opening required 'ABSPATHWPINC/option.php' (include_path='.:/opt/cpanel/ea-php74/root/usr/share/pear') in /home1/pmalakhouski/public_html/wp-includes/functions.php on line 8
+[28-Nov-2022 23:41:55 America/Chicago] PHP Fatal error:  Uncaught Error: Call to undefined function _deprecated_file() in /home1/pmalakhouski/public_html/wp-includes/class.wp-dependencies.php:11
+Stack trace:
+#0 {main}
+  thrown in /home1/pmalakhouski/public_html/wp-includes/class.wp-dependencies.php on line 11
+[30-Nov-2022 03:04:48 America/Chicago] PHP Fatal error:  Uncaught Error: Call to undefined function _deprecated_file() in /home1/pmalakhouski/public_html/wp-includes/class.wp-dependencies.php:11
+Stack trace:
+#0 {main}
+  thrown in /home1/pmalakhouski/public_html/wp-includes/class.wp-dependencies.php on line 11
+[13-Dec-2022 15:11:30 America/Chicago] PHP Warning:  Use of undefined constant ABSPATH - assumed 'ABSPATH' (this will throw an Error in a future version of PHP) in /home1/pmalakhouski/public_html/wp-includes/functions.php on line 8
+[13-Dec-2022 15:11:30 America/Chicago] PHP Warning:  Use of undefined constant WPINC - assumed 'WPINC' (this will throw an Error in a future version of PHP) in /home1/pmalakhouski/public_html/wp-includes/functions.php on line 8
+[13-Dec-2022 15:11:30 America/Chicago] PHP Warning:  require(ABSPATHWPINC/option.php): failed to open stream: No such file or directory in /home1/pmalakhouski/public_html/wp-includes/functions.php on line 8
+[13-Dec-2022 15:11:30 America/Chicago] PHP Warning:  require(ABSPATHWPINC/option.php): failed to open stream: No such file or directory in /home1/pmalakhouski/public_html/wp-includes/functions.php on line 8
+[13-Dec-2022 15:11:30 America/Chicago] PHP Fatal error:  require(): Failed opening required 'ABSPATHWPINC/option.php' (include_path='.:/opt/cpanel/ea-php74/root/usr/share/pear') in /home1/pmalakhouski/public_html/wp-includes/functions.php on line 8
