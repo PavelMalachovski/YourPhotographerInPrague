@@ -1,0 +1,31 @@
+# ----------------------
+# GitHub Actions 
+#
+# Pavel Malachovski
+# ----------------------
+
+name: My-GitHubActions
+
+on: 
+  push:
+    branches: 
+      - master
+      
+jobs:
+  my_testing:
+  
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Print Hello Message
+      run: echo "This is my_testing step"
+      
+  
+  my_deployment:
+  
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Print Hello Message
+      run: echo "This is my_deployment step"
+    
