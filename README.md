@@ -1,3 +1,7 @@
+### Status of last Deployment:<br>
+<img scr="https://github.com/PavelMalakhouski/YourPhotographerInPrague/workflows/My-GitHubActions/badge.svg?branch=master"><br>
+
+
 # YourPhotographerInPrague
 <!DOCTYPE html>
 <head>
