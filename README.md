@@ -1,13 +1,8 @@
-# YourPhotographerInPrague
-Status of last Deployment:<br>
+### Status of last Deployment:
 <img src="https://github.com/PavelMalakhouski/YourPhotographerInPrague/workflows/My-GitHubActions/badge.svg?branch=master"><br>
 
-<!DOCTYPE html>
-<head>
-	<meta name="viewport" content="width=device-width" />
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	<link rel="stylesheet" href="wp-admin/css/install.css?ver=20100228" type="text/css" />
-</head>
+
+# YourPhotographerInPrague
 <body>
 <h2>First Things First</h2>
 <p>Welcome. WordPress is a very special project to me. Every developer and contributor adds something unique to the mix, and together we create something beautiful that I am proud to be a part of. Thousands of hours have gone into WordPress, and we are dedicated to making it better every day. Thank you for making it part of your world.</p>
