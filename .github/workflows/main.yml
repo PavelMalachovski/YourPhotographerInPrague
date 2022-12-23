@@ -39,8 +39,15 @@ jobs:
   my_deployment:
     runs-on: ubuntu-latest
     needs: [my_testing]
+    env:
+      VAR1 : "This is Job level variable 1"
+      VAR2 : "This is Job level variable 2"
     
     steps:
+    - name: Print env variables
+      run: echo "Var1 = ${{ env.VAR1 }}"
+      run: echo "Var2 = ${{ env.VAR2 }}"
+
     - name: Print Hello Message
       run: echo "This is my_deployment step"
     
