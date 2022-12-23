@@ -1,6 +1,6 @@
 # YourPhotographerInPrague
 Status of last Deployment:<br>
-<img scr="https://github.com/PavelMalakhouski/YourPhotographerInPrague/workflows/My-GitHubActions/badge.svg?branch=master"><br>
+<img scr="https://github.com/PavelMalakhouski/YourPhotographerInPrague/testing-actions/workflows/My-GitHubActions/badge.svg?branch=master"><br>
 
 <!DOCTYPE html>
 <head>
