@@ -24,7 +24,7 @@ jobs:
     
     - name: Execute commands
       run: |
-        echo "Hello Message 1"
+      echo "Hello Message 1"
         echo "Hello Message 2"
         echo "Application name : ${{ env.APPLICATION_NAME }}"
 
