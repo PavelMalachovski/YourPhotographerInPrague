@@ -45,8 +45,9 @@ jobs:
     
     steps:
     - name: Print env variables
-      run: echo "Var1 = ${{ env.VAR1 }}"
-      run: echo "Var2 = ${{ env.VAR2 }}"
+      run: |
+        echo "Var1 = ${{ env.VAR1 }}"
+        echo "Var2 = ${{ env.VAR2 }}"
 
     - name: Print Hello Message
       run: echo "This is my_deployment step"
