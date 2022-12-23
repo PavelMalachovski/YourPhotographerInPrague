@@ -1,6 +1,9 @@
 ### Status of last Deployment:
 <img src="https://github.com/PavelMalakhouski/YourPhotographerInPrague/workflows/My-GitHubActions/badge.svg?branch=master"><br>
 
+### Status of last Deployment2:
+![example branch parameter](https://github.com/PavelMalakhouski/YourPhotographerInPrague/actions/workflows/main.yml/badge.svg?branch=master)
+
 
 # YourPhotographerInPrague
 <body>
