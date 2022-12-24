@@ -1,5 +1,5 @@
 ### Status of last Deployment:
-![example branch parameter](https://github.com/PavelMalakhouski/YourPhotographerInPrague/actions/workflows/project.yml/badge.svg?branch=master)
+![example branch parameter](https://github.com/PavelMalakhouski/YourPhotographerInPrague/actions/workflows/master.yml/badge.svg?branch=master)
 
 
 # YourPhotographerInPrague

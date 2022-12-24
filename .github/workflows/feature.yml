@@ -1,0 +1,118 @@
+---
+#################################
+#################################
+## Super Linter GitHub Actions ##
+#################################
+#################################
+name: Feature-YourPhotographerInPrague-to-AWS-ElasticBeanStalk
+
+###############################
+#    Environment Parameters   #
+###############################
+env:
+  EB_PACKAGE_S3_BUCKET_NAME: "yourphotographerinprague"
+  EB_APPLICATION_NAME: "YourPhotographerInPrague"
+  EB_ENVIRONMENT_NAME: "Yourphotographerinprague-env"
+  DEPLOY_PACKAGE_NAME: "ypip_app_${{ github.sha }}.zip"
+  AWS_REGION_NAME: "eu-central-1"
+
+#############################
+# Start the job on all push #
+#############################
+on:
+  push:
+    branches-ignore: [master, main]
+    # Remove the line above to run when pushing to master
+  pull_request:
+    branches: [master, main]
+
+###############
+# Set the Job #
+###############
+jobs:
+  my_linter:
+    # Name the Job
+    name: Lint Code Base
+    # Set the agent to run on
+    runs-on: ubuntu-latest
+
+    ##################
+    # Load all steps #
+    ##################
+    steps:
+      ##########################
+      # Checkout the code base #
+      ##########################
+      - name: Checkout Code
+        uses: actions/checkout@v1
+        with:
+          # Full git history is needed to get a proper
+          # list of changed files within `super-linter`
+          fetch-depth: 0
+
+      ################################
+      # Run Linter against code base #
+      ################################
+      - name: Lint Code Base
+        uses: github/super-linter@v4
+        env:
+          VALIDATE_ALL_CODEBASE: false
+          DEFAULT_BRANCH: master
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  my_ci_part:
+    runs-on: ubuntu-latest
+    needs: [my_linter]
+    
+    steps:
+    - name: Create zip deployment package
+      run: zip -r ${{ env.DEPLOY_PACKAGE_NAME }} ./ -x *.git*
+      
+    - name: Configure my AWS Creds
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.MY_AWS_ACCESS_KEY }}
+        aws-secret-access-key: ${{ secrets.MY_AWS_SECRET_KEY }}
+        aws-region: ${{ env.AWS_REGION_NAME }}
+        
+    - name: Copy Deployment Package to S3 Bucket
+      run: aws s3 cp ${{ env.DEPLOY_PACKAGE_NAME }} s3://${{ env.EB_PACKAGE_S3_BUCKET_NAME }}/
+      
+    - name: Print CI part finished successfully
+      run: echo "CI part finished successfully"
+      
+  my_cd_part:
+    runs-on: ubuntu-latest
+    needs: [my_ci_part]
+    
+    steps:
+    - name: Configure my AWS Creds
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.MY_AWS_ACCESS_KEY }}
+        aws-secret-access-key: ${{ secrets.MY_AWS_SECRET_KEY }}
+        aws-region: ${{ env.AWS_REGION_NAME }}
+    
+    - name: Create new ElasticBeanStalk APP 
+      run: |
+        aws elasticbeanstalk create-application-version \
+        --application-name ${{ env.EB_APPLICATION_NAME }} \
+        --source-bundle S3Bucket="${{ env.EB_PACKAGE_S3_BUCKET_NAME }}",S3Key="${{ env.DEPLOY_PACKAGE_NAME }}" \
+        --version-label "Ver-${{ github.sha }}" \
+        --description "CommitSHA-${{ github.sha }}"
+
+    - name: Deploy new ElasticBeanStalk App Version
+      run: aws elasticbeanstalk update-environment --environment-name ${{ env.EB_ENVIRONMENT_NAME }} --version-label "Ver-${{ github.sha }}"
+    
+    - name: send telegram message on push
+      uses: appleboy/telegram-action@master
+      with:
+        to: ${{ secrets.TELEGRAM_TO }}
+        token: ${{ secrets.TELEGRAM_TOKEN }}
+        message: |
+          ${{ github.actor }} created commit:
+          Commit message: ${{ github.event.commits[0].message }}
+
+          Repository: ${{ github.repository }}
+
+          See changes: https://github.com/${{ github.repository }}/commit/${{github.sha}}
