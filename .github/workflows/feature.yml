@@ -49,7 +49,7 @@ jobs:
     needs: [my_linter]
     steps:
       - name: Create zip deployment package
-        run: zip -r ${{ env.DEPLOY_PACKAGE_NAME }} ./ -x *.git*
+        run: zip -r ${{ env.DEPLOY_PACKAGE_NAME }} ./ -x ./*.git*
         
       - name: Configure my AWS Creds
         uses: aws-actions/configure-aws-credentials@v1
