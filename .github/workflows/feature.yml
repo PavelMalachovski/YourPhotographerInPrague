@@ -49,7 +49,10 @@ jobs:
     needs: [my_linter]
     steps:
       - name: Git clone our repo
-        uses: actions/checkout@v1
+        uses: actions/checkout@v3
+        with:
+          # Checkout files larger than 100mb
+          lfs: true
         
       - name: Create zip deployment package
         run: zip -r ${{ env.DEPLOY_PACKAGE_NAME }} ./ -x -- *.git*
