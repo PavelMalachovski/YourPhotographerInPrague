@@ -71,7 +71,6 @@ jobs:
           token: ${{ secrets.TELEGRAM_TOKEN }}
           message: |
             ${{ github.actor }} created commit:
-            Branch name: ${{ github.payload.ref }}
 
             Commit message: ${{ github.event.commits[0].message }}
 
