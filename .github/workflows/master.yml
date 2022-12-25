@@ -3,7 +3,7 @@ env:
   EB_PACKAGE_S3_BUCKET_NAME: "yourphotographerinprague"
   EB_APPLICATION_NAME: "YourPhotographerInPrague"
   EB_ENVIRONMENT_NAME: "Yourphotographerinprague-env"
-  DEPLOY_PACKAGE_NAME: "ypip_app_${{ github.sha }}.zip"
+  DEPLOY_PACKAGE_NAME: "ypip_master_${{ github.sha }}.zip"
   AWS_REGION_NAME: "eu-central-1"
 
 on:
@@ -37,7 +37,10 @@ jobs:
     needs: [my_linter]
     steps:
       - name: Git clone our repo
-        uses: actions/checkout@v1
+        uses: actions/checkout@v3
+        with:
+          # Checkout files larger than 100mb
+          lfs: true
         
       - name: Create zip deployment package
         run: zip -r ${{ env.DEPLOY_PACKAGE_NAME }} ./ -x -- *.git*
