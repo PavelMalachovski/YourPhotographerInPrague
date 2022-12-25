@@ -16,9 +16,6 @@ env:
   DEPLOY_PACKAGE_NAME: "ypip_app_${{ github.sha }}.zip"
   AWS_REGION_NAME: "eu-central-1"
 
-#############################
-# Start the job on all push #
-#############################
 on:
   push:
     branches-ignore: [master, main]
@@ -26,23 +23,12 @@ on:
   pull_request:
     branches: [master, main]
 
-###############
-# Set the Job #
-###############
 jobs:
   my_linter:
-    # Name the Job
     name: Lint Code Base
-    # Set the agent to run on
     runs-on: ubuntu-latest
 
-    ##################
-    # Load all steps #
-    ##################
     steps:
-      ##########################
-      # Checkout the code base #
-      ##########################
       - name: Checkout Code
         uses: actions/checkout@v1
         with:
@@ -50,9 +36,6 @@ jobs:
           # list of changed files within `super-linter`
           fetch-depth: 0
 
-      ################################
-      # Run Linter against code base #
-      ################################
       - name: Lint Code Base
         uses: github/super-linter/slim@v4
         env:
@@ -89,7 +72,7 @@ jobs:
           message: |
             ${{ github.actor }} created commit:
             Branch name: ${{ github.payload.ref }}
-            
+
             Commit message: ${{ github.event.commits[0].message }}
 
             Repository: ${{ github.repository }}
