@@ -40,7 +40,7 @@ jobs:
         uses: github/super-linter/slim@v4
         env:
           VALIDATE_ALL_CODEBASE: false
-          FILTER_REGEX_EXCLUDE: .wpress
+          FILTER_REGEX_EXCLUDE: .zip
           DEFAULT_BRANCH: master
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -50,7 +50,7 @@ jobs:
     steps:
       - name: Git clone our repo
         uses: actions/checkout@v1
-        
+
       - name: Create zip deployment package
         run: zip -r ${{ env.DEPLOY_PACKAGE_NAME }} ./ -x -- *.git*
         
