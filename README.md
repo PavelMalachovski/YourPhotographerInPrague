@@ -1,6 +1,6 @@
 # Status of last Deployment
 ![example branch parameter](https://github.com/PavelMalakhouski/YourPhotographerInPrague/actions/workflows/master.yml/badge.svg?branch=master)
-### Prerequisites
+## Prerequisites
 [GIT](https://github.com/git-guides/install-git)
 
 [DOCKER](https://docs.docker.com/compose/install/)
