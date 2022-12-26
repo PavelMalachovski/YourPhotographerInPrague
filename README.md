@@ -13,6 +13,6 @@ git add .gitattributes
 ```
 
 ### Wordpress plugin ALL-in-One WP Migration
-[![ALL-in-One WP Migration]](https://img.youtube.com/vi/kpsjTPsygbs/0.jpg)](https://www.youtube.com/watch?v=kpsjTPsygbs)
+[ALL-in-One WP Migration](https://img.youtube.com/vi/kpsjTPsygbs/0.jpg)](https://www.youtube.com/watch?v=kpsjTPsygbs)
 # YourPhotographerInPrague
 [YourPhotographerInPrague](https://www.alenatretyak.com)
