@@ -1,0 +1,12 @@
+<wpml-config>
+	<admin-texts>
+		<key name="photograph_theme_options">
+			<key name="photograph_search_text" />
+			<key name="photograph_tag_text" />
+			<key name="photograph_slider_youtube_url" />
+			<key name="photograph_video_upload" />
+			<key name="photograph_feature_tab_all_text" />
+			<key name="photograph_img-upload-footer-image" />
+		</key>
+	</admin-texts>
+</wpml-config>
