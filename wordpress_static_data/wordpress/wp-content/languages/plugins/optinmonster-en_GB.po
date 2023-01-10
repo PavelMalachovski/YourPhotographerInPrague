@@ -1,0 +1,303 @@
+# Translation of Plugins - Marketing Toolkit by OptinMonster – Popups, Email Optin Forms &amp; Newsletter Subscribers - Stable (latest release) in English (UK)
+# This file is distributed under the same license as the Plugins - Marketing Toolkit by OptinMonster – Popups, Email Optin Forms &amp; Newsletter Subscribers - Stable (latest release) package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2020-07-28 16:25:42+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: GlotPress/3.0.0-alpha.2\n"
+"Language: en_GB\n"
+"Project-Id-Version: Plugins - Marketing Toolkit by OptinMonster – Popups, Email Optin Forms &amp; Newsletter Subscribers - Stable (latest release)\n"
+
+#: OMAPI/Menu.php:310
+msgid "Settings"
+msgstr "Settings"
+
+#: OMAPI/Menu.php:1405
+msgid "Please upgrade to the latest version of WooCommerce to enjoy deeper integration with OptinMonster."
+msgstr "Please upgrade to the latest version of WooCommerce to enjoy deeper integration with OptinMonster."
+
+#: OMAPI/Menu.php:1403
+msgctxt "the current version of WooCommerce: \"WooCommerce x.y.z\""
+msgid "This site is currently running: "
+msgstr "This site is currently running: "
+
+#: OMAPI/Menu.php:1402
+msgid "OptinMonster requires WooCommerce %s or above."
+msgstr "OptinMonster requires WooCommerce %s or above."
+
+#: OMAPI/Pages.php:67 OMAPI/TrustPulse.php:144
+msgid "TrustPulse"
+msgstr "TrustPulse"
+
+#: OMAPI/Menu.php:1448
+msgid "Consumer secret"
+msgstr "Consumer secret"
+
+#: OMAPI/Menu.php:1440
+msgid "Consumer key"
+msgstr "Consumer key"
+
+#: OMAPI/Menu.php:1380
+msgid "Download the report and attach to your <a href=\"%s\">support ticket</a> to help speed up the process."
+msgstr "Download the report and attach to your <a href=\"%s\">support ticket</a> to help speed up the process."
+
+#: OMAPI/Menu.php:1367
+msgid "Changelog"
+msgstr "Change log"
+
+#: OMAPI/Menu.php:1366
+msgid "Documentation"
+msgstr "Documentation"
+
+#: OMAPI/Menu.php:941
+msgid "You can set this campaign to show in your sidebars using the OptinMonster widget within your sidebars."
+msgstr "You can set this campaign to show in your sidebars using the OptinMonster widget within your sidebars."
+
+#: views/plugin-banner.php:24 OMAPI/Menu.php:311
+msgid "Create New Campaign"
+msgstr "Create new campaign"
+
+#: views/plugin-banner.php:20
+msgid "Send Us Feedback"
+msgstr "Send us feedback"
+
+#: views/plugin-banner.php:17
+msgid "Need Help?"
+msgstr "Need help?"
+
+#: OMAPI/Menu.php:1368
+msgid "Create a Support Ticket"
+msgstr "Create a support ticket"
+
+#: OMAPI/Menu.php:1000
+msgid "Front Page and Search Pages"
+msgstr "Front page and search pages"
+
+#: OMAPI/Menu.php:941
+msgid "Go to Widgets"
+msgstr "Go to widgets"
+
+#: OMAPI/Menu.php:941
+msgid "Use Widgets to set Sidebar output"
+msgstr "Use widgets to set sidebar output"
+
+#: OMAPI/Menu.php:929
+msgid "Show on WooCommerce Product Tags:"
+msgstr "Show on WooCommerce product tags:"
+
+#: OMAPI/Menu.php:907
+msgid "Show on WooCommerce Product Categories:"
+msgstr "Show on WooCommerce product categories:"
+
+#: OMAPI/Menu.php:887
+msgid "The campaign will show when the endpoint page for add payment method is displayed."
+msgstr "The campaign will show when the endpoint page for add payment method is displayed."
+
+#: OMAPI/Menu.php:887
+msgid "Show on WooCommerce Add Payment Method endpoint"
+msgstr "Show on WooCommerce add payment method endpoint"
+
+#: OMAPI/Menu.php:883
+msgid "The campaign will show when the endpoint page for customer logout is displayed."
+msgstr "The campaign will show when the endpoint page for customer log out is displayed."
+
+#: OMAPI/Menu.php:883
+msgid "Show on WooCommerce Customer Logout endpoint"
+msgstr "Show on WooCommerce customer log out endpoint"
+
+#: OMAPI/Widget.php:190
+msgid "Title"
+msgstr "Title"
+
+#: OMAPI/Type.php:91
+msgid "Add New"
+msgstr "Add New"
+
+#: OMAPI/Menu.php:625
+msgid "API Key"
+msgstr "API Key"
+
+#: OMAPI/Content.php:533
+msgid "Disable"
+msgstr "Disable"
+
+#: OMAPI/Widget.php:211
+msgid "Not Enabled"
+msgstr "Not Enabled"
+
+#: OMAPI/Validate.php:194
+msgid "The subscription to this OptinMonster account has expired. Please renew your subscription to use the OptinMonster API."
+msgstr "The subscription to this OptinMonster account has expired. Please renew your subscription to use the OptinMonster API."
+
+#: OMAPI/Save.php:830
+msgid "Your settings have been saved successfully."
+msgstr "Your settings have been saved successfully."
+
+#: OMAPI/MailPoet.php:60
+msgid "Select your MailPoet list..."
+msgstr "Select your MailPoet list&hellip;"
+
+#: OMAPI/Menu.php:817
+msgid "Add lead to this MailPoet list:"
+msgstr "Add lead to this MailPoet list:"
+
+#: OMAPI/Menu.php:813
+msgid "Save lead to MailPoet?"
+msgstr "Save lead to MailPoet?"
+
+#: OMAPI/Menu.php:750
+msgid "Type to search and select post tag(s)..."
+msgstr "Type to search and select post tag(s)&hellip;"
+
+#: OMAPI/Menu.php:723 OMAPI/Menu.php:728
+msgid "Type to search and select post(s)..."
+msgstr "Type to search and select post(s)&hellip;"
+
+#: OMAPI/Menu.php:625
+msgid "Enter your API Key here..."
+msgstr "Enter your API Key here&hellip;"
+
+#: OMAPI/Menu.php:132
+msgid "Migration"
+msgstr "Migration"
+
+#: views/plugin-banner.php:8
+msgid "v%s"
+msgstr "v%s"
+
+#: OMAPI/Welcome.php:338
+msgid "Thank you for using <a href=\"%1$s\" target=\"_blank\">OptinMonster</a>!"
+msgstr "Thank you for using <a href=\"%1$s\" target=\"_blank\">OptinMonster</a>!"
+
+#: OMAPI/Menu.php:465
+msgid "Are you sure you want to reset these settings?"
+msgstr "Are you sure you want to reset these settings?"
+
+#: OMAPI/Widget.php:79
+msgid "OptinMonster"
+msgstr "OptinMonster"
+
+#: OMAPI/Content.php:533
+msgid "Go Live"
+msgstr "Go Live"
+
+#: OMAPI/Validate.php:191
+msgid "The subscription to this OptinMonster account has been disabled, likely due to a refund or other administrator action. Please contact OptinMonster support to resolve this issue."
+msgstr "The subscription to this OptinMonster account has been disabled, likely due to a refund or other administrator action. Please contact OptinMonster support to resolve this issue."
+
+#: OMAPI/Type.php:90
+msgctxt "post type singular name"
+msgid "Campaign"
+msgstr "Campaign"
+
+#: OMAPI/Type.php:89
+msgctxt "post type general name"
+msgid "Campaigns"
+msgstr "Campaigns"
+
+#: OMAPI/Refresh.php:252
+msgid "Your campaigns have been refreshed successfully."
+msgstr "Your campaigns have been refreshed successfully."
+
+#: OMAPI/Menu.php:977
+msgid "Show campaign to only users (logged-in)"
+msgstr "Show campaign to only users (logged-in)"
+
+#: OMAPI/Menu.php:973
+msgid "Show campaign to only visitors (not logged-in)"
+msgstr "Show campaign to only visitors (not logged-in)"
+
+#: OMAPI/Menu.php:969
+msgid "Show campaign to all visitors and users"
+msgstr "Show campaign to all visitors and users"
+
+#: OMAPI/Menu.php:817
+msgid "All successful leads for the campaign will be added to this particular MailPoet list."
+msgstr "All successful leads for the campaign will be added to this particular MailPoet list."
+
+#: OMAPI/Menu.php:813
+msgid "If checked, successful campaign leads will be saved to MailPoet."
+msgstr "If ticked, successful campaign leads will be saved to MailPoet."
+
+#: OMAPI/Menu.php:809
+msgid "Load campaign on post types and archives:"
+msgstr "Load campaign on post types and archives:"
+
+#: OMAPI/Menu.php:750
+msgid "Loads the campaign on the selected post tags."
+msgstr "Loads the campaign on the selected post tags."
+
+#: OMAPI/Menu.php:750
+msgid "Load campaign on post tags:"
+msgstr "Load campaign on post tags:"
+
+#: OMAPI/Menu.php:737
+msgid "Load campaign on post categories:"
+msgstr "Load campaign on post categories:"
+
+#: OMAPI/Menu.php:728
+msgid "Loads the campaign on the selected posts and/or pages."
+msgstr "Loads the campaign on the selected posts and/or pages."
+
+#: OMAPI/Menu.php:718
+msgid "Determines who should be able to view this campaign. Want to hide for newsletter subscribers? <a href=\"%s\" target=\"_blank\" rel=\"noopener\">Click here to learn how.</a>"
+msgstr "Determines who should be able to view this campaign. Want to hide for newsletter subscribers? <a href=\"%s\" target=\"_blank\" rel=\"noopener\">Click here to learn how.</a>"
+
+#: OMAPI/Menu.php:718
+msgid "Who should see this campaign?"
+msgstr "Who should see this campaign?"
+
+#: OMAPI/Menu.php:697
+msgid "The campaign will not be displayed on this site unless this setting is checked."
+msgstr "The campaign will not be displayed on this site unless this setting is ticked."
+
+#: OMAPI/Menu.php:640
+msgid "If checked, local cookies will be cleared for all campaigns after campaign settings are adjusted and saved."
+msgstr "If ticked, local cookies will be cleared for all campaigns after campaign settings are adjusted and saved."
+
+#: OMAPI/Menu.php:640
+msgid "Clear local cookies on campaign update?"
+msgstr "Clear local cookies on campaign update?"
+
+#: OMAPI/Content.php:367
+msgid "Disabled"
+msgstr "Disabled"
+
+#: OMAPI/Content.php:237 OMAPI/Content.php:277
+msgid "Save Settings"
+msgstr "Save Settings"
+
+#: OMAPI/Content.php:380
+msgid "Manage output settings for %s"
+msgstr "Manage output settings for %s"
+
+#: OMAPI/Content.php:308
+msgid "You must authenticate your OptinMonster account before you can use OptinMonster on this site."
+msgstr "You must authenticate your OptinMonster account before you can use OptinMonster on this site."
+
+#: OMAPI/Content.php:245
+msgid "Clear Local Cookies"
+msgstr "Clear Local Cookies"
+
+#: OMAPI/Content.php:229
+msgid "Connect to OptinMonster"
+msgstr "Connect to OptinMonster"
+
+#: OMAPI/Content.php:192
+msgid "Back to Overview"
+msgstr "Back to Overview"
+
+#: OMAPI/Content.php:185
+msgid "Output Settings for %s"
+msgstr "Output Settings for %s"
+
+#: OMAPI/Actions.php:258
+msgid "There was an error clearing the local cookies. Please try again."
+msgstr "There was an error clearing the local cookies. Please try again."
+
+#: OMAPI/Actions.php:257
+msgid "The local cookies have been cleared successfully."
+msgstr "The local cookies have been cleared successfully."

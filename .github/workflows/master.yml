@@ -1,4 +1,4 @@
-name: YourPhotographerInPrague-to-AWS-ElasticBeanStalk
+name: YourPhotographerInPrague
 env:
   EB_PACKAGE_S3_BUCKET_NAME: "yourphotographerinprague"
   EB_APPLICATION_NAME: "YourPhotographerInPrague"
@@ -28,7 +28,7 @@ jobs:
         uses: github/super-linter/slim@v4
         env:
           VALIDATE_ALL_CODEBASE: false
-          FILTER_REGEX_EXCLUDE: .wpress
+          FILTER_REGEX_EXCLUDE: .wpress|wordpress_static_data/|wordpress\wp-content/|schema/
           DEFAULT_BRANCH: master
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
