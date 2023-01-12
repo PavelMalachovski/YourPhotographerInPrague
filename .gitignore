@@ -1,3 +1,7 @@
-
+!terraform/YPIP/development/
+!terraform/YPIP/production/
+!terraform/YPIP/
+!terraform/modules/
+terraform/
 wordpress_static_data/wordpress/
 !wordpress_static_data/wordpress/wp-content/
