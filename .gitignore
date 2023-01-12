@@ -5,3 +5,19 @@
 terraform/
 wordpress_static_data/wordpress/
 !wordpress_static_data/wordpress/wp-content/
+
+# Local .terraform directories
+**/.terraform/*
+
+# .tfstate files
+*.tfstate
+*.tfstate.*
+*.tfvars
+# Ignore CLI configuration files
+.terraformrc
+terraform.rc
+
+*.hcl
+*.tfstate
+*.backup
+
