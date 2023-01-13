@@ -4,6 +4,7 @@
 !terraform/modules/
 terraform/
 wordpress_static_data/wordpress/
+wordpress_static_data/database/
 !wordpress_static_data/wordpress/wp-content/
 
 # Local .terraform directories
