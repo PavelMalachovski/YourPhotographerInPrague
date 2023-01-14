@@ -46,6 +46,7 @@ jobs:
 
   my_docker:
     runs-on: ubuntu-latest
+    needs: [my_linter]
     steps:
       -
         name: Checkout
