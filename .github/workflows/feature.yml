@@ -44,42 +44,68 @@ jobs:
           DEFAULT_BRANCH: master
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  my_ci_part:
+  my_docker:
     runs-on: ubuntu-latest
-    needs: [my_linter]
     steps:
-      - name: Git clone our repo
+      -
+        name: Checkout
         uses: actions/checkout@v3
+      -
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      -
+        name: Login to Docker Hub
+        uses: docker/login-action@v2
         with:
-          # Checkout files larger than 100mb
-          lfs: true
-        
-      - name: Create zip deployment package
-        run: zip -r ${{ env.DEPLOY_PACKAGE_NAME }} ./ -x -- *.git*
-        
-      - name: Configure my AWS Creds
-        uses: aws-actions/configure-aws-credentials@v1
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      -
+        name: Build and push
+        uses: docker/build-push-action@v3
         with:
-          aws-access-key-id: ${{ secrets.MY_AWS_ACCESS_KEY }}
-          aws-secret-access-key: ${{ secrets.MY_AWS_SECRET_KEY }}
-          aws-region: ${{ env.AWS_REGION_NAME }}
+          file: wordpress.Dockerfile
+          push: true
+          tags: user/app:latest
+
+  # my_ci_part:
+  #   runs-on: ubuntu-latest
+  #   needs: [my_linter]
+  #   steps:
+  #     - name: Git clone our repo
+  #       uses: actions/checkout@v3
+  #       with:
+  #         # Checkout files larger than 100mb
+  #         lfs: true
+        
+  #     - name: Create zip deployment package
+  #       run: zip -r ${{ env.DEPLOY_PACKAGE_NAME }} ./ -x -- *.git*
+        
+  #     - name: Configure my AWS Creds
+  #       uses: aws-actions/configure-aws-credentials@v1
+  #       with:
+  #         aws-access-key-id: ${{ secrets.MY_AWS_ACCESS_KEY }}
+  #         aws-secret-access-key: ${{ secrets.MY_AWS_SECRET_KEY }}
+  #         aws-region: ${{ env.AWS_REGION_NAME }}
           
-      - name: Copy Deployment Package to S3 Bucket
-        run: aws s3 cp ${{ env.DEPLOY_PACKAGE_NAME }} s3://${{ env.EB_PACKAGE_S3_BUCKET_NAME }}/
+  #     - name: Copy Deployment Package to S3 Bucket
+  #       run: aws s3 cp ${{ env.DEPLOY_PACKAGE_NAME }} s3://${{ env.EB_PACKAGE_S3_BUCKET_NAME }}/
         
-      - name: Print CI part finished successfully
-        run: echo "CI part finished successfully"
+  #     - name: Print CI part finished successfully
+  #       run: echo "CI part finished successfully"
 
-      - name: Send telegram message
-        uses: appleboy/telegram-action@master
-        with:
-          to: ${{ secrets.TELEGRAM_TO }}
-          token: ${{ secrets.TELEGRAM_TOKEN }}
-          message: |
-            ${{ github.actor }} created commit:
-            On Branch: ${{ github.ref }}
-            Commit message: ${{ github.event.commits[0].message }}
+  #     - name: Send telegram message
+  #       uses: appleboy/telegram-action@master
+  #       with:
+  #         to: ${{ secrets.TELEGRAM_TO }}
+  #         token: ${{ secrets.TELEGRAM_TOKEN }}
+  #         message: |
+  #           ${{ github.actor }} created commit:
+  #           On Branch: ${{ github.ref }}
+  #           Commit message: ${{ github.event.commits[0].message }}
 
-            Repository: ${{ github.repository }}
+  #           Repository: ${{ github.repository }}
 
-            See changes: https://github.com/${{ github.repository }}/commit/${{github.sha}}
+  #           See changes: https://github.com/${{ github.repository }}/commit/${{github.sha}}
