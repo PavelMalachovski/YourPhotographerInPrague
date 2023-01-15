@@ -81,8 +81,9 @@ jobs:
     - name: Run terraform.sh
       run: |
         pwd
-        sudo chmod +x "${GITHUB_WORKSPACE}/../terraform.sh"
-        sudo bash "${GITHUB_WORKSPACE}/../terraform.sh"
+        ls -la
+        # sudo chmod +x "${GITHUB_WORKSPACE}/../terraform.sh"
+        # sudo bash "${GITHUB_WORKSPACE}/../terraform.sh"
       shell: bash
 
   # my_ci_part:
