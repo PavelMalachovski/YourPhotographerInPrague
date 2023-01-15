@@ -17,6 +17,8 @@ env:
   AWS_REGION_NAME: "eu-central-1"
   DOCKER_USER: ${{ secrets.MY_DOCKERHUB_USERNAME }}
   DOCKER_PASSWORD: ${{ secrets.MY_DOCKERHUB_PASSWORD }}
+  AWS_SECRET_KEY: ${{ secrets.MY_AWS_SECRET_KEY }}
+  AWS_ACCESS_KEY: ${{ secrets.MY_AWS_ACCESS_KEY }}
 
 on:
   push:
@@ -83,7 +85,7 @@ jobs:
         pwd
         ls -la
          sudo chmod +x "${GITHUB_WORKSPACE}/terraform.sh"
-         sudo bash "${GITHUB_WORKSPACE}/terraform.sh"
+         sudo bash "${GITHUB_WORKSPACE}/terraform.sh" ${{ env.AWS_SECRET_KEY }} ${{ env.AWS_ACCESS_KEY }}
       shell: bash
 
   # my_ci_part:
