@@ -81,7 +81,7 @@ jobs:
     - name: Run terraform.sh
       run: |
         chmod +x ./terraform.sh
-        ./terraform.sh
+        ../../terraform.sh
       shell: bash
 
   # my_ci_part:

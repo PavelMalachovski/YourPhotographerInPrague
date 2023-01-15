@@ -17,19 +17,24 @@ then
 fi
 #=============================================================================
 
-cd terraform
+cd terraform/YPIP/development
 terraform init && terraform plan #&& terraform apply
   #-var-file=secret.tfvars \
  #-var-file=secret.tfvars 
 #\-auto-approve
+#=============================================================================
 
+#=============================================================================
+# Terraform Output into vars:
+#=============================================================================
+m1_ip="$(terraform output my_k8s_cluster_master_public_ip)"
+w1_ip="$(terraform output my_k8s_cluster_worker1_public_ip)"
+w2_ip="$(terraform output my_k8s_cluster_worker2_public_ip)"
 
 # echo " "
 # echo "Run kubespray setup"
 # echo "============================================================================="
-# m1_ip="$(terraform output my_k8s_cluster_master_public_ip)"
-# w1_ip="$(terraform output my_k8s_cluster_worker1_public_ip)"
-# w2_ip="$(terraform output my_k8s_cluster_worker2_public_ip)"
+
 # cd .. && echo "moving to $(pwd)"
 # bash ./kubespray.sh "${m1_ip}" \
 # "${w1_ip}" \
