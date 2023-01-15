@@ -8,11 +8,11 @@ set -e
 #=============================================================================
 # Variables
 PROJECT_DIR="/home/runner/work/YourPhotographerInPrague/YourPhotographerInPrague"
-AWS_SECRET_ACCESS_KEY=$1
-AWS_ACCESS_KEY_ID=$2
+# AWS_SECRET_ACCESS_KEY=$1
+# AWS_ACCESS_KEY_ID=$2
 
-export ${AWS_SECRET_ACCESS_KEY}
-export ${AWS_ACCESS_KEY_ID}
+# export ${AWS_SECRET_ACCESS_KEY}
+# export ${AWS_ACCESS_KEY_ID}
 #=============================================================================
 
 cd ${PROJECT_DIR}/terraform/YPIP/development
