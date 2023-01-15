@@ -60,11 +60,11 @@ jobs:
     
     - name: docker build wordpress.Dockerfile
       run: |
-        docker build ./wordpress.Dockerfile -t pavelmalachovski/yourphotographerinprague:latest .
+        docker build -f wordpress.Dockerfile -t pavelmalachovski/yourphotographerinprague:latest .
     
     - name: docker build mysql.Dockerfile
       run: |
-        docker build ./mysql.Dockerfile -t pavelmalachovski/mysql_ypip:latest .
+        docker build -f mysql.Dockerfile -t pavelmalachovski/mysql_ypip:latest .
 
     - name: docker push 
       run: |
