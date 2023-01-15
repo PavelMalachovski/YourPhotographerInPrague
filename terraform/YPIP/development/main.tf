@@ -1,18 +1,82 @@
+#=============================================================================
+# My Terraform Infrastructure
+# Provision Highly Available Web site in any region Default VPC
+# Create:
+#   - Security Group for K8s Servers
+#   - Launch Configuration with auto AMI lookup
+#   - Auto Scaling group using 2 availability zones
+#   - Classic Load Balancer in 2 availability zones
+#
+# Pavel Malachovski
+#=============================================================================
+
+#=============================================================================
+# Provider and Modules
+#=============================================================================
+
 provider "aws" {
-    region = "eu-central-1"
+    region = var.region
 }
 
 module "aws_security_group" {
     source = "../../modules/aws_security_group"
     allow_ports = ["22","80","443","8080","1541","9092"]
 }
-module "aws_infrastructure" {
-    source = "../../modules/aws_infrastructure"
-    master_instance_type = "t2.medium"
-    worker_instance_type = "t2.micro"
+#=============================================================================
+# Data Source
+#=============================================================================
+
+data "aws_availability_zones" "available" {}
+
+data "aws_ami" "latest_amazon_linux" {
+    owners = var.owners
+    most_recent = true
+    filter {
+        name = "name"
+        values = var.latest_amazon_linux
+    }
 }
 
-module "aws_s3bucket" {
-    source = "../../modules/aws_s3bucket"
-    acl = "public-read-write"
+#=============================================================================
+# Resources
+#=============================================================================
+
+resource "aws_eip" "my_static_ip_master" {
+  instance = aws_instance.my_k8s_cluster_master.id
+  tags = merge(var.common_tag, { Name = "${var.environment} Master Elastic IP"})
 }
+
+resource "aws_eip" "my_static_ip_worker1" {
+  instance = aws_instance.my_k8s_cluster_worker1.id
+  tags = merge(var.common_tag, { Name = "${var.environment} Worker1 Elastic IP"})
+}
+
+resource "aws_eip" "my_static_ip_worker2" {
+  instance = aws_instance.my_k8s_cluster_worker2.id
+  tags = merge(var.common_tag, { Name = "${var.environment} Worker2 Elastic IP"})
+}
+
+resource "aws_instance" "my_k8s_cluster_master" {
+    ami = data.aws_ami.latest_amazon_linux.id
+    instance_type = var.master_instance_type
+    monitoring = var.detailed_monitoring
+    vpc_security_group_ids = module.aws_security_group.aws_security_group
+    tags = merge(var.common_tag, { Name = "${var.environment} ${var.instance_type} MASTER by Terraform"})
+}
+
+resource "aws_instance" "my_k8s_cluster_worker1" {
+    ami = data.aws_ami.latest_amazon_linux.id
+    instance_type = var.worker_instance_type
+    monitoring = var.detailed_monitoring
+    vpc_security_group_ids = module.aws_security_group.aws_security_group
+    tags = merge(var.common_tag, { Name = "${var.environment} ${var.instance_type} WORKER1 by Terraform"})
+}
+
+resource "aws_instance" "my_k8s_cluster_worker2" {
+    ami = data.aws_ami.latest_amazon_linux.id
+    instance_type = var.worker_instance_type
+    monitoring = var.detailed_monitoring
+    vpc_security_group_ids = module.aws_security_group.aws_security_group
+    tags = merge(var.common_tag, { Name = "${var.environment} ${var.instance_type} WORKER2 by Terraform"})
+}
+#=============================================================================
