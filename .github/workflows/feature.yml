@@ -29,14 +29,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
+      - name: Run code checkout
         uses: actions/checkout@v3
         with:
           # Full git history is needed to get a proper
           # list of changed files within `super-linter`
           fetch-depth: 0
 
-      - name: Lint Code Base
+      - name: Run code base linter
         uses: github/super-linter/slim@v4
         env:
           VALIDATE_ALL_CODEBASE: false
@@ -52,12 +52,12 @@ jobs:
     steps:
     # Docker login
     - uses: actions/checkout@v3
-    - name: docker login
+    - name: Run docker login
       run: |
         docker login -u ${{ env.DOCKER_USER }} -p ${{ env.DOCKER_PASSWORD }}
     
     # Docker Build
-    - name: docker build wordpress.Dockerfile
+    - name: Run docker build wordpress.Dockerfile
       run: |
         docker build -f wordpress.Dockerfile -t pavelmalachovski/yourphotographerinprague:latest .
     - name: docker build mysql.Dockerfile
@@ -65,10 +65,24 @@ jobs:
         docker build -f mysql.Dockerfile -t pavelmalachovski/mysql_ypip:latest .
     
     # Docker Push
-    - name: docker push 
+    - name: Run docker push 
       run: |
         docker push pavelmalachovski/yourphotographerinprague:latest
         docker push pavelmalachovski/mysql_ypip:latest
+
+  my_terraform:
+    name: my_terraform
+    runs-on: ubuntu-latest
+    needs: [my_docker]
+
+    steps:
+    # Docker login
+    - uses: actions/checkout@v3
+    - name: Run terraform.sh
+      run: |
+        chmod +x ./terraform.sh
+        ./terraform.sh
+      shell: bash
 
   # my_ci_part:
   #   runs-on: ubuntu-latest
