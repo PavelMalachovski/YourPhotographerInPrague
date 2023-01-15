@@ -2,9 +2,10 @@ provider "aws" {
     region = "eu-central-1"
 }
 
-module "aws_infrastructure_production" {
+module "aws_infrastructure_development" {
     source = "../../modules/aws_infrastructure"
-    instance_type = "t2.small"
+    master_instance_type = "t2.medium"
+    worker_instance_type = "t2.micro"
 }
 
 module "aws_s3bucket" {

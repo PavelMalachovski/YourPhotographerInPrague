@@ -56,17 +56,17 @@ data "aws_ami" "latest_amazon_linux" {
 # Resources
 #=============================================================================
 
-resource "aws_eip" "my_static_ip" {
+resource "aws_eip" "my_static_ip_master" {
   instance = aws_instance.my_k8s_cluster_master.id
   tags = merge(var.common_tag, { Name = "${var.environment} Master Elastic IP"})
 }
 
-resource "aws_eip" "my_static_ip" {
+resource "aws_eip" "my_static_ip_worker1" {
   instance = aws_instance.my_k8s_cluster_worker1.id
   tags = merge(var.common_tag, { Name = "${var.environment} Worker1 Elastic IP"})
 }
 
-resource "aws_eip" "my_static_ip" {
+resource "aws_eip" "my_static_ip_worker2" {
   instance = aws_instance.my_k8s_cluster_worker2.id
   tags = merge(var.common_tag, { Name = "${var.environment} Worker2 Elastic IP"})
 }
