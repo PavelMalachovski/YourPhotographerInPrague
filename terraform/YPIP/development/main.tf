@@ -61,7 +61,7 @@ resource "aws_instance" "my_k8s_cluster_master" {
     instance_type = var.master_instance_type
     monitoring = var.detailed_monitoring
     vpc_security_group_ids = module.aws_security_group.aws_security_group
-    tags = merge(var.common_tag, { Name = "${var.environment} ${var.instance_type} MASTER by Terraform"})
+    tags = merge(var.common_tag, { Name = "${var.environment} ${var.master_instance_type} MASTER by Terraform"})
 }
 
 resource "aws_instance" "my_k8s_cluster_worker1" {
@@ -69,7 +69,7 @@ resource "aws_instance" "my_k8s_cluster_worker1" {
     instance_type = var.worker_instance_type
     monitoring = var.detailed_monitoring
     vpc_security_group_ids = module.aws_security_group.aws_security_group
-    tags = merge(var.common_tag, { Name = "${var.environment} ${var.instance_type} WORKER1 by Terraform"})
+    tags = merge(var.common_tag, { Name = "${var.environment} ${var.worker_instance_type} WORKER1 by Terraform"})
 }
 
 resource "aws_instance" "my_k8s_cluster_worker2" {
@@ -77,6 +77,6 @@ resource "aws_instance" "my_k8s_cluster_worker2" {
     instance_type = var.worker_instance_type
     monitoring = var.detailed_monitoring
     vpc_security_group_ids = module.aws_security_group.aws_security_group
-    tags = merge(var.common_tag, { Name = "${var.environment} ${var.instance_type} WORKER2 by Terraform"})
+    tags = merge(var.common_tag, { Name = "${var.environment} ${var.worker_instance_type} WORKER2 by Terraform"})
 }
 #=============================================================================
