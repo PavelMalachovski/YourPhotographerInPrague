@@ -15,13 +15,13 @@ env:
   EB_ENVIRONMENT_NAME: "Yourphotographerinprague-env"
   DEPLOY_PACKAGE_NAME: "ypip_feature_${{ github.sha }}.zip"
   AWS_REGION_NAME: "eu-central-1"
+  DOCKER_USER: ${{ secrets.MY_DOCKERHUB_USERNAME }}
+  DOCKER_PASSWORD: ${{ secrets.MY_DOCKERHUB_PASSWORD }}
 
 on:
   push:
     branches-ignore: [master, main]
     # Remove the line above to run when pushing to master
-  pull_request:
-    branches: [master, main]
 
 jobs:
   my_linter:
@@ -50,22 +50,21 @@ jobs:
     needs: [my_linter]
 
     steps:
+    # Docker login
     - uses: actions/checkout@v3
     - name: docker login
-      env: 
-        DOCKER_USER: ${{ secrets.MY_DOCKERHUB_USERNAME }}
-        DOCKER_PASSWORD: ${{ secrets.MY_DOCKERHUB_PASSWORD }}
       run: |
         docker login -u ${{ env.DOCKER_USER }} -p ${{ env.DOCKER_PASSWORD }}
     
+    # Docker Build
     - name: docker build wordpress.Dockerfile
       run: |
         docker build -f wordpress.Dockerfile -t pavelmalachovski/yourphotographerinprague:latest .
-    
     - name: docker build mysql.Dockerfile
       run: |
         docker build -f mysql.Dockerfile -t pavelmalachovski/mysql_ypip:latest .
-
+    
+    # Docker Push
     - name: docker push 
       run: |
         docker push pavelmalachovski/yourphotographerinprague:latest
