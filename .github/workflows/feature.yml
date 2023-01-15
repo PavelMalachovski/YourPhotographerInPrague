@@ -25,12 +25,12 @@ on:
 
 jobs:
   my_linter:
-    name: Lint Code Base
+    name: my_linter
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v1
+        uses: actions/checkout@v3
         with:
           # Full git history is needed to get a proper
           # list of changed files within `super-linter`
@@ -45,31 +45,42 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   my_docker:
+    name: my_docker
     runs-on: ubuntu-latest
     needs: [my_linter]
+
     steps:
-      -
-        name: Checkout
-        uses: actions/checkout@v3
-      -
-        name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
-      -
-        name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-      -
-        name: Login to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_PASSWORD }}
-      -
-        name: Build and push
-        uses: docker/build-push-action@v3
-        with:
-          file: wordpress.Dockerfile
-          push: true
-          tags: user/app:latest
+    - uses: actions/checkout@v3
+    - name: docker login
+      env: 
+        DOCKER_USER: ${{ secrets.DOCKERHUB_USERNAME }}
+        DOCKER_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}
+      run: |
+        docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
+
+    # - name: docker build wordpress
+    #   uses: actions/checkout@v3
+    #   run: |
+    #     docker build ./wordpress.Dockerfile -t pavelmalachovski/yourphotographerinprague:latest
+
+    #   - name: docker build mysql
+    #     uses: actions/checkout@v3
+    #     run: |
+    #       docker build ./mysql.Dockerfile -t pavelmalachovski/mysql_ypip:latest
+
+
+      #   name: Login to Docker Hub
+      #   uses: docker/login-action@v2
+      #   with:
+      #     username: ${{ secrets.DOCKERHUB_USERNAME }}
+      #     password: ${{ secrets.DOCKERHUB_PASSWORD }}
+      # -
+      #   name: Build and push
+      #   uses: docker/build-push-action@v3
+      #   with:
+      #     file: wordpress.Dockerfile
+      #     push: true
+      #     tags: user/app:latest
 
   # my_ci_part:
   #   runs-on: ubuntu-latest
