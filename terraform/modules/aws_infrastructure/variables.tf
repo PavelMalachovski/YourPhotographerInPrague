@@ -14,7 +14,13 @@ variable "latest_amazon_linux" {
     default = ["ubuntu/images/hvm-ssd/ubuntu-bionic-18.04-amd64-server-*"]
 }
 
-variable "instance_type" {
+variable "master_instance_type" {
+    description = "Enter Instance TYpe"
+    default = "t2.medium"
+    type = string
+}
+
+variable "worker_instance_type" {
     description = "Enter Instance TYpe"
     default = "t2.micro"
     type = string
