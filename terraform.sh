@@ -13,8 +13,9 @@ AWS_ACCESS_KEY_ID=$2
 
 echo "params: ${AWS_SECRET_ACCESS_KEY} and ${AWS_ACCESS_KEY_ID}"
 
-export ${AWS_SECRET_ACCESS_KEY}
-export ${AWS_ACCESS_KEY_ID}
+export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+echo "env params exported"
 #=============================================================================
 
 cd ${PROJECT_DIR}/terraform/YPIP/development
