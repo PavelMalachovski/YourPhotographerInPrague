@@ -2,7 +2,7 @@
 # My Terraform Infrastructure
 # Provision Highly Available Web site in any region Default VPC
 # Create:
-#   - Security Group for web server
+#   - Security Group for K8s Servers
 #   - Launch Configuration with auto AMI lookup
 #   - Auto Scaling group using 2 availability zones
 #   - Classic Load Balancer in 2 availability zones
@@ -21,20 +21,20 @@ provider "aws" {
 #=============================================================================
 # Git push
 #=============================================================================
-locals {
-  timestamp = "${timestamp()}"
-  timestamp_sanitized = "${replace("${local.timestamp}", "/[-| |T|Z|:]/", "")}"
+# locals {
+#   timestamp = "${timestamp()}"
+#   timestamp_sanitized = "${replace("${local.timestamp}", "/[-| |T|Z|:]/", "")}"
 
-}
+# }
 
-resource "null_resource" "cmd" {
-    provisioner "local-exec" {
-        command = "echo Terraform apply started: ${local.timestamp_sanitized} >> ../terraform.log"
-    }
-    triggers = {
-        always_run = "${timestamp()}"
-    }
-}
+# resource "null_resource" "cmd" {
+#     provisioner "local-exec" {
+#         command = "echo Terraform apply started: ${local.timestamp_sanitized} >> ../terraform.log"
+#     }
+#     triggers = {
+#         always_run = "${timestamp()}"
+#     }
+# }
 
 
 #=============================================================================
@@ -56,15 +56,42 @@ data "aws_ami" "latest_amazon_linux" {
 # Resources
 #=============================================================================
 
-resource "aws_eip" "my_static_ip" {
-  instance = aws_instance.my_amazon_linux_machine.id
-  tags = merge(var.common_tag, { Name = "${var.environment} Elastic IP"})
+resource "aws_eip" "my_static_ip_master" {
+  instance = aws_instance.my_k8s_cluster_master.id
+  tags = merge(var.common_tag, { Name = "${var.environment} Master Elastic IP"})
 }
 
-resource "aws_instance" "my_amazon_linux_machine" {
+resource "aws_eip" "my_static_ip_worker1" {
+  instance = aws_instance.my_k8s_cluster_worker1.id
+  tags = merge(var.common_tag, { Name = "${var.environment} Worker1 Elastic IP"})
+}
+
+resource "aws_eip" "my_static_ip_worker2" {
+  instance = aws_instance.my_k8s_cluster_worker2.id
+  tags = merge(var.common_tag, { Name = "${var.environment} Worker2 Elastic IP"})
+}
+
+resource "aws_instance" "my_k8s_cluster_master" {
     ami = data.aws_ami.latest_amazon_linux.id
-    instance_type = var.instance_type
+    instance_type = var.master_instance_type
     monitoring = var.detailed_monitoring
-    tags = merge(var.common_tag, { Name = "${var.environment} ${var.instance_type} Linux by Terraform"})
+    vpc_security_group_ids = module.aws_security_group.aws_security_group.my_sg
+    tags = merge(var.common_tag, { Name = "${var.environment} ${var.instance_type} MASTER by Terraform"})
+}
+
+resource "aws_instance" "my_k8s_cluster_worker1" {
+    ami = data.aws_ami.latest_amazon_linux.id
+    instance_type = var.worker_instance_type
+    monitoring = var.detailed_monitoring
+    vpc_security_group_ids = module.aws_security_group.aws_security_group.my_sg
+    tags = merge(var.common_tag, { Name = "${var.environment} ${var.instance_type} WORKER1 by Terraform"})
+}
+
+resource "aws_instance" "my_k8s_cluster_worker2" {
+    ami = data.aws_ami.latest_amazon_linux.id
+    instance_type = var.worker_instance_type
+    monitoring = var.detailed_monitoring
+    vpc_security_group_ids = module.aws_security_group.aws_security_group.my_sg
+    tags = merge(var.common_tag, { Name = "${var.environment} ${var.instance_type} WORKER2 by Terraform"})
 }
 #=============================================================================

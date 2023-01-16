@@ -17,6 +17,8 @@ env:
   AWS_REGION_NAME: "eu-central-1"
   DOCKER_USER: ${{ secrets.MY_DOCKERHUB_USERNAME }}
   DOCKER_PASSWORD: ${{ secrets.MY_DOCKERHUB_PASSWORD }}
+  AWS_SECRET_KEY: ${{ secrets.MY_AWS_SECRET_KEY }}
+  AWS_ACCESS_KEY: ${{ secrets.MY_AWS_ACCESS_KEY }}
 
 on:
   push:
@@ -24,51 +26,73 @@ on:
     # Remove the line above to run when pushing to master
 
 jobs:
-  my_linter:
-    name: my_linter
+  # my_linter:
+  #   name: my_linter
+  #   runs-on: ubuntu-latest
+
+  #   steps:
+  #     - name: Run code checkout
+  #       uses: actions/checkout@v3
+  #       with:
+  #         # Full git history is needed to get a proper
+  #         # list of changed files within `super-linter`
+  #         fetch-depth: 0
+
+  #     - name: Run code base linter
+  #       uses: github/super-linter/slim@v4
+  #       env:
+  #         VALIDATE_ALL_CODEBASE: false
+  #         FILTER_REGEX_EXCLUDE: dockerfile|wordpress_static_data/|wordpress\wp-content/|schema/|terraform.sh
+  #         DEFAULT_BRANCH: master
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # my_docker:
+  #   name: my_docker
+  #   runs-on: ubuntu-latest
+  #   needs: [my_linter]
+
+  #   steps:
+  #   # Docker login
+  #   - uses: actions/checkout@v3
+  #   - name: Run docker login
+  #     run: |
+  #       docker login -u ${{ env.DOCKER_USER }} -p ${{ env.DOCKER_PASSWORD }}
+    
+  #   # Docker Build
+  #   - name: Run docker build wordpress.Dockerfile
+  #     run: |
+  #       docker build -f wordpress.Dockerfile -t pavelmalachovski/yourphotographerinprague:latest .
+  #   - name: Run docker build mysql.Dockerfile
+  #     run: |
+  #       docker build -f mysql.Dockerfile -t pavelmalachovski/mysql_ypip:latest .
+    
+  #   # Docker Push
+  #   - name: Run docker push 
+  #     run: |
+  #       docker push pavelmalachovski/yourphotographerinprague:latest
+  #       docker push pavelmalachovski/mysql_ypip:latest
+
+  my_terraform:
+    name: my_terraform
     runs-on: ubuntu-latest
+    #needs: [my_docker]
 
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
-        with:
-          # Full git history is needed to get a proper
-          # list of changed files within `super-linter`
-          fetch-depth: 0
-
-      - name: Lint Code Base
-        uses: github/super-linter/slim@v4
-        env:
-          VALIDATE_ALL_CODEBASE: false
-          FILTER_REGEX_EXCLUDE: dockerfile|wordpress_static_data/|wordpress\wp-content/|schema/
-          DEFAULT_BRANCH: master
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  my_docker:
-    name: my_docker
-    runs-on: ubuntu-latest
-    needs: [my_linter]
-
-    steps:
-    # Docker login
+    # AWS login
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.MY_AWS_ACCESS_KEY }}
+        aws-secret-access-key: ${{ secrets.MY_AWS_SECRET_KEY }}
+        aws-region: eu-central-1
     - uses: actions/checkout@v3
-    - name: docker login
+    - name: Run terraform.sh
       run: |
-        docker login -u ${{ env.DOCKER_USER }} -p ${{ env.DOCKER_PASSWORD }}
-    
-    # Docker Build
-    - name: docker build wordpress.Dockerfile
-      run: |
-        docker build -f wordpress.Dockerfile -t pavelmalachovski/yourphotographerinprague:latest .
-    - name: docker build mysql.Dockerfile
-      run: |
-        docker build -f mysql.Dockerfile -t pavelmalachovski/mysql_ypip:latest .
-    
-    # Docker Push
-    - name: docker push 
-      run: |
-        docker push pavelmalachovski/yourphotographerinprague:latest
-        docker push pavelmalachovski/mysql_ypip:latest
+        pwd
+        ls -la
+         sudo chmod +x "${GITHUB_WORKSPACE}/terraform.sh"
+         sudo bash "${GITHUB_WORKSPACE}/terraform.sh" "${{ secrets.MY_AWS_SECRET_KEY }}" "${{ secrets.MY_AWS_ACCESS_KEY }}"
+      shell: bash
 
   # my_ci_part:
   #   runs-on: ubuntu-latest
