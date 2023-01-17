@@ -21,4 +21,5 @@ terraform.rc
 *.hcl
 *.tfstate
 *.backup
+*.pem
 
