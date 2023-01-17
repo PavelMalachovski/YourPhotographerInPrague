@@ -7,9 +7,6 @@ variable "vpc_cidr" {
     default = "10.0.0.0/16"
 }
 
-variable "env" {
-    default = "dev"
-}
 
 variable "public_subnet_cidrs" {
     default = [
@@ -17,6 +14,6 @@ variable "public_subnet_cidrs" {
     ]
 }
 
-variable "private_subnet_cidrs" {
-    default = []
-}
+# variable "private_subnet_cidrs" {
+#     default = []
+# }

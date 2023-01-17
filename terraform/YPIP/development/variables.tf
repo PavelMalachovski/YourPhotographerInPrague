@@ -16,7 +16,7 @@ variable "latest_amazon_linux" {
 
 variable "master_instance_type" {
     description = "Enter Instance TYpe"
-    default = "t2.medium"
+    default = "t2.small"
     type = string
 }
 
@@ -43,4 +43,14 @@ variable "common_tag" {
         Owner = "Pavel Malachovski"
         Project = "TeachMeSkills Diploma"
     }
+}
+
+variable "vpc_cidr" {
+    default = "10.0.0.0/16"
+}
+
+variable "public_subnet_cidrs" {
+    default = [
+        "10.0.1.0/24",
+    ]
 }

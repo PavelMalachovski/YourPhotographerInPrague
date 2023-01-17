@@ -22,6 +22,10 @@ module "aws_security_group" {
     source = "../../modules/aws_security_group"
     allow_ports = ["22","80","443","8080","1541","9092"]
 }
+
+module "aws_my_network" {
+    source = "../../modules/aws_network"
+}
 #=============================================================================
 # Data Source
 #=============================================================================
@@ -61,6 +65,7 @@ resource "aws_instance" "my_k8s_cluster_master" {
     instance_type = var.master_instance_type
     monitoring = var.detailed_monitoring
     vpc_security_group_ids = [module.aws_security_group.my_sg_id]
+    subnet_id = element(module.aws_network.aws_subnet.public_subnets[*].id, count.index)
     tags = merge(var.common_tag, { Name = "${var.environment} ${var.master_instance_type} MASTER by Terraform"})
 }
 
@@ -69,6 +74,7 @@ resource "aws_instance" "my_k8s_cluster_worker1" {
     instance_type = var.worker_instance_type
     monitoring = var.detailed_monitoring
     vpc_security_group_ids = [module.aws_security_group.my_sg_id]
+    subnet_id = element(module.aws_network.aws_subnet.public_subnets[*].id, count.index)
     tags = merge(var.common_tag, { Name = "${var.environment} ${var.worker_instance_type} WORKER1 by Terraform"})
 }
 
@@ -77,6 +83,7 @@ resource "aws_instance" "my_k8s_cluster_worker2" {
     instance_type = var.worker_instance_type
     monitoring = var.detailed_monitoring
     vpc_security_group_ids = [module.aws_security_group.my_sg_id]
+    subnet_id = element(module.aws_network.aws_subnet.public_subnets[*].id, count.index)
     tags = merge(var.common_tag, { Name = "${var.environment} ${var.worker_instance_type} WORKER2 by Terraform"})
 }
 #=============================================================================
