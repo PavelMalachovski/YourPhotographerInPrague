@@ -30,7 +30,7 @@ MASTERNODE_PUBLIC_IP="${MASTERNODE_PUBLIC_IP//\"}"
 WORKERNODE_PUBLIC_IP="${WORKERNODE_PUBLIC_IP//\"}"
 WORKERNODE2_PUBLIC_IP="${WORKERNODE2_PUBLIC_IP//\"}"
 
-
+PROJECT_DIR="/home/runner/work/YourPhotographerInPrague/YourPhotographerInPrague"
 CLUSTER_NAME="my_kubespray_k8s"
 
 # Print helpFunction in case parameters are empty
