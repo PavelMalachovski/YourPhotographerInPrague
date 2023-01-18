@@ -22,7 +22,7 @@ variable "master_instance_type" {
 
 variable "worker_instance_type" {
     description = "Enter Instance TYpe"
-    default = "t2.micro"
+    default = "t2.small"
     type = string
 }
 
