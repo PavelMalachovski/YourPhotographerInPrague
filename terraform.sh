@@ -17,7 +17,6 @@ echo "env params exported"
 #=============================================================================
 
 cd ${PROJECT_DIR}/terraform/YPIP/development
-chmod 400 key.pem
 terraform init && terraform apply -var-file=terraform.tfvars -auto-approve
 #=============================================================================
 
