@@ -22,6 +22,7 @@ module "aws_security_group" {
     source = "../../modules/aws_security_group"
     allow_ports = ["22","80","443","8080","1541","9092"]
 }
+
 #=============================================================================
 # Data Source
 #=============================================================================
@@ -40,7 +41,15 @@ data "aws_ami" "latest_amazon_linux" {
 #=============================================================================
 # Resources
 #=============================================================================
+resource "tls_private_key" "example" {
+  algorithm = "RSA"
+  rsa_bits  = 4096
+}
 
+resource "aws_key_pair" "generated_key" {
+  key_name   = var.key_name
+  public_key = tls_private_key.example.public_key_openssh
+}
 resource "aws_eip" "my_static_ip_master" {
   instance = aws_instance.my_k8s_cluster_master.id
   tags = merge(var.common_tag, { Name = "${var.environment} Master Elastic IP"})
@@ -58,6 +67,7 @@ resource "aws_eip" "my_static_ip_worker2" {
 
 resource "aws_instance" "my_k8s_cluster_master" {
     ami = data.aws_ami.latest_amazon_linux.id
+    key_name = aws_key_pair.generated_key.key_name
     instance_type = var.master_instance_type
     monitoring = var.detailed_monitoring
     vpc_security_group_ids = [module.aws_security_group.my_sg_id]
@@ -66,6 +76,7 @@ resource "aws_instance" "my_k8s_cluster_master" {
 
 resource "aws_instance" "my_k8s_cluster_worker1" {
     ami = data.aws_ami.latest_amazon_linux.id
+    key_name = aws_key_pair.generated_key.key_name
     instance_type = var.worker_instance_type
     monitoring = var.detailed_monitoring
     vpc_security_group_ids = [module.aws_security_group.my_sg_id]
@@ -74,6 +85,7 @@ resource "aws_instance" "my_k8s_cluster_worker1" {
 
 resource "aws_instance" "my_k8s_cluster_worker2" {
     ami = data.aws_ami.latest_amazon_linux.id
+    key_name = aws_key_pair.generated_key.key_name
     instance_type = var.worker_instance_type
     monitoring = var.detailed_monitoring
     vpc_security_group_ids = [module.aws_security_group.my_sg_id]
