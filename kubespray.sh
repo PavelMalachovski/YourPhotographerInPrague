@@ -55,7 +55,10 @@ echo "Grabbing private key output from terraform"
 echo "============================================================================="
 # terraform output -raw private_key
 # terraform output -raw private_key >> key.pem
+ls -la ${PROJECT_DIR}/terraform/YPIP/development/
+echo "moving private key..."
 mv ${PROJECT_DIR}/terraform/YPIP/development/key.pem ./key.pem
+ls -la | grep "key"
 chmod 400 key.pem
 
 echo "============================================================================="
