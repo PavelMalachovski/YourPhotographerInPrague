@@ -46,12 +46,14 @@ echo "==========================================================================
 echo "Grabbing kubespray from git"
 echo "============================================================================="
 rm -rf kubespray
+cd ${PROJECT_DIR}/terraform/YPIP/development
 git clone https://github.com/kubernetes-sigs/kubespray.git \
 && cd kubespray
 
 echo "============================================================================="
 echo "Grabbing private key output from terraform"
 echo "============================================================================="
+terraform output -raw private_key
 terraform output -raw private_key >> key.pem
 chmod 400 key.pem
 
@@ -82,4 +84,12 @@ echo "==========================================================================
 echo "Run kubespray playbook"
 echo "============================================================================="
 ls -la
-ansible-playbook -i inventory/${CLUSTER_NAME}/hosts.yaml cluster.yml --private-key=key.pem --become --become-user=root --user=admin -v
+echo "============================================================================="
+cat inventory/${CLUSTER_NAME}/hosts.yaml
+echo "============================================================================="
+
+echo "============================================================================="
+cat key.pem
+echo "============================================================================="
+
+ansible-playbook -i inventory/${CLUSTER_NAME}/hosts.yaml cluster.yml --private-key=key.pem --become --become-user=root --user=ubuntu -v
