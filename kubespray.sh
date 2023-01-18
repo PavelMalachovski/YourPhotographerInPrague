@@ -81,4 +81,4 @@ CONFIG_FILE=inventory/${CLUSTER_NAME}/hosts.yaml python3 contrib/inventory_build
 echo "============================================================================="
 echo "Run kubespray playbook"
 echo "============================================================================="
-ansible-playbook -i inventory/${cluster_name}/hosts.yaml cluster.yml --private-key=key.pem --become --become-user=root --user=admin -vvvv
+ansible-playbook -i inventory/${CLUSTER_NAME}/hosts.yaml cluster.yml --private-key=key.pem --become --become-user=root --user=ubuntu -v
