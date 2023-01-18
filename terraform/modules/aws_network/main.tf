@@ -59,23 +59,23 @@ resource "aws_route_table_association" "public_routes" {
     subnet_id = element(aws_subnet.public_subnets[*].id, count.index)
 }
 
-#-------NAT Gateways with Elastic IPs-----------------------------------#
-resource "aws_eip" "nat" {
-    count = length(var.private_subnet_cidrs)
-    vpc = true
-    tags = {
-        Name = "[${var.environment}]-elastic-IP-${count.index +1}"
-    }
-}
+# #-------NAT Gateways with Elastic IPs-----------------------------------#
+# resource "aws_eip" "nat" {
+#     count = length(var.private_subnet_cidrs)
+#     vpc = true
+#     tags = {
+#         Name = "[${var.environment}]-elastic-IP-${count.index +1}"
+#     }
+# }
 
-resource "aws_nat_gateway" "nat" {
-    count = length(var.private_subnet_cidrs)
-    allocation_id = aws_eip.nat[count.index].id
-    subnet_id = element(aws_subnet.public_subnets[*].id, count.index)
-    tags = {
-        Name = "[${var.environment}]-nat_gateway-${count.index +1}"
-    }
-}
+# resource "aws_nat_gateway" "nat" {
+#     count = length(var.private_subnet_cidrs)
+#     allocation_id = aws_eip.nat[count.index].id
+#     subnet_id = element(aws_subnet.public_subnets[*].id, count.index)
+#     tags = {
+#         Name = "[${var.environment}]-nat_gateway-${count.index +1}"
+#     }
+# }
 
 
 #-------Private Subnets and Routing-----------------------------------#
