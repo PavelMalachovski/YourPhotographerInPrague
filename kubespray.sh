@@ -53,8 +53,9 @@ git clone https://github.com/kubernetes-sigs/kubespray.git \
 echo "============================================================================="
 echo "Grabbing private key output from terraform"
 echo "============================================================================="
-terraform output -raw private_key
-terraform output -raw private_key >> key.pem
+# terraform output -raw private_key
+# terraform output -raw private_key >> key.pem
+mv ${PROJECT_DIR}/terraform/YPIP/development/key.pem ./key.pem
 chmod 400 key.pem
 
 echo "============================================================================="
@@ -89,7 +90,7 @@ cat inventory/${CLUSTER_NAME}/hosts.yaml
 echo "============================================================================="
 
 echo "============================================================================="
-cat key.pem
+#cat key.pem
 echo "============================================================================="
 
 ansible-playbook -i inventory/${CLUSTER_NAME}/hosts.yaml cluster.yml --private-key=key.pem --become --become-user=root --user=ubuntu -v
