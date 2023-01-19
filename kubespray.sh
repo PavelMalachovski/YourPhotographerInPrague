@@ -93,7 +93,7 @@ echo "Run kubespray playbook"
 echo "============================================================================="
 ls -la
 echo "============================================================================="
-cat inventory/${CLUSTER_NAME}/hosts.yaml
+cat inventory/${CLUSTER_NAME}/hosts.ini
 echo "============================================================================="
 
 ansible-playbook -i inventory/${CLUSTER_NAME}/hosts.ini cluster.yml --private-key ~/.ssh/key.pem -e ansible_user=ubuntu -b --become-user=root --flush-cache
