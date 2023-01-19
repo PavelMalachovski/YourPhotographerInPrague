@@ -23,9 +23,9 @@ terraform init && terraform apply -var-file=terraform.tfvars -auto-approve
 #=============================================================================
 # Terraform Output into vars:
 #=============================================================================
-m1_ip="$(terraform output my_k8s_cluster_master_public_ip)"
-w1_ip="$(terraform output my_k8s_cluster_worker1_public_ip)"
-w2_ip="$(terraform output my_k8s_cluster_worker2_public_ip)"
+m1_ip="$(terraform output my_static_ip_master)"
+w1_ip="$(terraform output my_static_ip_worker1)"
+w2_ip="$(terraform output my_static_ip_worker2)"
 
 echo "============================================================================="
 echo "Run kubespray setup"
