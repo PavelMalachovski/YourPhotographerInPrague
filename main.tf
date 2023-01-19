@@ -33,7 +33,7 @@ resource "null_resource" "git_add" {
 
 resource "null_resource" "git_commit" {
     provisioner "local-exec" {
-        command = "git commit -m \"test\""
+        command = "git commit -m \"terrastart\""
     }
     triggers = {
         always_run = "${timestamp()}"

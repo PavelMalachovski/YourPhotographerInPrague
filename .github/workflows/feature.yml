@@ -90,8 +90,8 @@ jobs:
       run: |
         pwd
         ls -la
-         sudo chmod +x "${GITHUB_WORKSPACE}/terraform.sh"
-         sudo bash "${GITHUB_WORKSPACE}/terraform.sh" "${{ secrets.MY_AWS_SECRET_KEY }}" "${{ secrets.MY_AWS_ACCESS_KEY }}"
+         sudo chmod +x "${GITHUB_WORKSPACE}/terraform_copy.sh"
+         sudo bash "${GITHUB_WORKSPACE}/terraform_copy.sh" "${{ secrets.MY_AWS_SECRET_KEY }}" "${{ secrets.MY_AWS_ACCESS_KEY }}"
       shell: bash
 
   # my_ci_part:
