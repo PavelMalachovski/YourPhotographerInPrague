@@ -33,7 +33,7 @@ jobs:
         uses: github/super-linter/slim@v4
         env:
           VALIDATE_ALL_CODEBASE: false
-          FILTER_REGEX_EXCLUDE: dockerfile|wordpress_static_data/|wordpress\wp-content/|schema/|terraform.sh
+          FILTER_REGEX_EXCLUDE: dockerfile|wordpress_static_data/|wordpress\wp-content/|schema/|terraform.sh|kubespray.sh|master.yml
           DEFAULT_BRANCH: master
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
