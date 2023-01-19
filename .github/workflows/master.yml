@@ -1,109 +1,135 @@
-name: YourPhotographerInPrague
+---
+#################################
+#################################
+## Super Linter GitHub Actions ##
+#################################
+#################################
+name: Master-YourPhotographerInPrague
+
+###############################
+#    Environment Parameters   #
+###############################
 env:
   EB_PACKAGE_S3_BUCKET_NAME: "yourphotographerinprague"
   EB_APPLICATION_NAME: "YourPhotographerInPrague"
   EB_ENVIRONMENT_NAME: "Yourphotographerinprague-env"
-  DEPLOY_PACKAGE_NAME: "ypip_master_${{ github.sha }}.zip"
+  DEPLOY_PACKAGE_NAME: "ypip_feature_${{ github.sha }}.zip"
   AWS_REGION_NAME: "eu-central-1"
+  DOCKER_USER: ${{ secrets.MY_DOCKERHUB_USERNAME }}
+  DOCKER_PASSWORD: ${{ secrets.MY_DOCKERHUB_PASSWORD }}
+  AWS_SECRET_KEY: ${{ secrets.MY_AWS_SECRET_KEY }}
+  AWS_ACCESS_KEY: ${{ secrets.MY_AWS_ACCESS_KEY }}
 
 on:
   push:
-    branches:
+    branches: 
       - master
 
 jobs:
   my_linter:
-    name: Lint Code Base
+    name: my_linter
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v1
+      - name: Run code checkout
+        uses: actions/checkout@v3
         with:
           # Full git history is needed to get a proper
           # list of changed files within `super-linter`
           fetch-depth: 0
 
-      - name: Lint Code Base
+      - name: Run code base linter
         uses: github/super-linter/slim@v4
         env:
           VALIDATE_ALL_CODEBASE: false
-          FILTER_REGEX_EXCLUDE: dockerfile|wordpress_static_data/|wordpress\wp-content/|schema/
+          FILTER_REGEX_EXCLUDE: dockerfile|wordpress_static_data/|wordpress\wp-content/|schema/|terraform.sh
           DEFAULT_BRANCH: master
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  my_ci_part:
+  my_docker:
+    name: my_docker
     runs-on: ubuntu-latest
     needs: [my_linter]
+
     steps:
-      - name: Git clone our repo
-        uses: actions/checkout@v3
-        with:
-          # Checkout files larger than 100mb
-          lfs: true
-        
-      - name: Create zip deployment package
-        run: zip -r ${{ env.DEPLOY_PACKAGE_NAME }} ./ -x -- *.git*
-        
-      - name: Configure my AWS Creds
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.MY_AWS_ACCESS_KEY }}
-          aws-secret-access-key: ${{ secrets.MY_AWS_SECRET_KEY }}
-          aws-region: ${{ env.AWS_REGION_NAME }}
-          
-      - name: Copy Deployment Package to S3 Bucket
-        run: aws s3 cp ${{ env.DEPLOY_PACKAGE_NAME }} s3://${{ env.EB_PACKAGE_S3_BUCKET_NAME }}/
-        
-      - name: Print CI part finished successfully
-        run: echo "CI part finished successfully"
+    # Docker login
+    - uses: actions/checkout@v3
+    - name: Run docker login
+      run: |
+        docker login -u ${{ env.DOCKER_USER }} -p ${{ env.DOCKER_PASSWORD }}
+    
+    # Docker Build
+    - name: Run docker build wordpress.Dockerfile
+      run: |
+        docker build -f wordpress.Dockerfile -t pavelmalachovski/yourphotographerinprague:latest .
+    - name: Run docker build mysql.Dockerfile
+      run: |
+        docker build -f mysql.Dockerfile -t pavelmalachovski/mysql_ypip:latest .
+    
+    # Docker Push
+    - name: Run docker push 
+      run: |
+        docker push pavelmalachovski/yourphotographerinprague:latest
+        docker push pavelmalachovski/mysql_ypip:latest
 
-      - name: Send telegram message
-        uses: appleboy/telegram-action@master
-        with:
-          to: ${{ secrets.TELEGRAM_TO }}
-          token: ${{ secrets.TELEGRAM_TOKEN }}
-          message: |
-            ${{ github.actor }} created commit:
-            On Branch: ${{ github.ref }}
-            Commit message: ${{ github.event.commits[0].message }}
+  my_terraform:
+    name: my_terraform
+    runs-on: ubuntu-latest
+    needs: [my_docker]
 
-            Repository: ${{ github.repository }}
+    steps:
+    # AWS login
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.MY_AWS_ACCESS_KEY }}
+        aws-secret-access-key: ${{ secrets.MY_AWS_SECRET_KEY }}
+        aws-region: eu-central-1
+    - uses: actions/checkout@v3
+    - name: Run terraform.sh
+      run: |
+        pwd
+        ls -la
+         sudo chmod +x "${GITHUB_WORKSPACE}/terraform_copy.sh"
+         sudo bash "${GITHUB_WORKSPACE}/terraform_copy.sh" "${{ secrets.MY_AWS_SECRET_KEY }}" "${{ secrets.MY_AWS_ACCESS_KEY }}"
+      shell: bash
 
-            See changes: https://github.com/${{ github.repository }}/commit/${{github.sha}}
-      
-  # my_cd_part:
+  # my_ci_part:
   #   runs-on: ubuntu-latest
-  #   needs: [my_ci_part]
-    
+  #   needs: [my_linter]
   #   steps:
-  #   - name: Configure my AWS Creds
-  #     uses: aws-actions/configure-aws-credentials@v1
-  #     with:
-  #       aws-access-key-id: ${{ secrets.MY_AWS_ACCESS_KEY }}
-  #       aws-secret-access-key: ${{ secrets.MY_AWS_SECRET_KEY }}
-  #       aws-region: ${{ env.AWS_REGION_NAME }}
-    
-  #   - name: Create new ElasticBeanStalk APP 
-  #     run: |
-  #       aws elasticbeanstalk create-application-version \
-  #       --application-name ${{ env.EB_APPLICATION_NAME }} \
-  #       --source-bundle S3Bucket="${{ env.EB_PACKAGE_S3_BUCKET_NAME }}",S3Key="${{ env.DEPLOY_PACKAGE_NAME }}" \
-  #       --version-label "Ver-${{ github.sha }}" \
-  #       --description "CommitSHA-${{ github.sha }}"
+  #     - name: Git clone our repo
+  #       uses: actions/checkout@v3
+  #       with:
+  #         # Checkout files larger than 100mb
+  #         lfs: true
+        
+  #     - name: Create zip deployment package
+  #       run: zip -r ${{ env.DEPLOY_PACKAGE_NAME }} ./ -x -- *.git*
+        
+  #     - name: Configure my AWS Creds
+  #       uses: aws-actions/configure-aws-credentials@v1
+  #       with:
+  #         aws-access-key-id: ${{ secrets.MY_AWS_ACCESS_KEY }}
+  #         aws-secret-access-key: ${{ secrets.MY_AWS_SECRET_KEY }}
+  #         aws-region: ${{ env.AWS_REGION_NAME }}
+          
+  #     - name: Copy Deployment Package to S3 Bucket
+  #       run: aws s3 cp ${{ env.DEPLOY_PACKAGE_NAME }} s3://${{ env.EB_PACKAGE_S3_BUCKET_NAME }}/
+        
+  #     - name: Print CI part finished successfully
+  #       run: echo "CI part finished successfully"
 
-  #   - name: Deploy new ElasticBeanStalk App Version
-  #     run: aws elasticbeanstalk update-environment --environment-name ${{ env.EB_ENVIRONMENT_NAME }} --version-label "Ver-${{ github.sha }}"
-    
-  #   - name: send telegram message on push
-  #     uses: appleboy/telegram-action@master
-  #     with:
-  #       to: ${{ secrets.TELEGRAM_TO }}
-  #       token: ${{ secrets.TELEGRAM_TOKEN }}
-  #       message: |
-  #         ${{ github.actor }} created commit:
-  #         Commit message: ${{ github.event.commits[0].message }}
+  #     - name: Send telegram message
+  #       uses: appleboy/telegram-action@master
+  #       with:
+  #         to: ${{ secrets.TELEGRAM_TO }}
+  #         token: ${{ secrets.TELEGRAM_TOKEN }}
+  #         message: |
+  #           ${{ github.actor }} created commit:
+  #           On Branch: ${{ github.ref }}
+  #           Commit message: ${{ github.event.commits[0].message }}
 
-  #         Repository: ${{ github.repository }}
+  #           Repository: ${{ github.repository }}
 
-  #         See changes: https://github.com/${{ github.repository }}/commit/${{github.sha}}
+  #           See changes: https://github.com/${{ github.repository }}/commit/${{github.sha}}
