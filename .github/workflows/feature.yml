@@ -93,6 +93,21 @@ jobs:
          sudo chmod +x "${GITHUB_WORKSPACE}/terraform_copy.sh"
          sudo bash "${GITHUB_WORKSPACE}/terraform_copy.sh" "${{ secrets.MY_AWS_SECRET_KEY }}" "${{ secrets.MY_AWS_ACCESS_KEY }}"
       shell: bash
+    
+    # Telegram notification
+    - name: Send telegram message
+      uses: appleboy/telegram-action@master
+      with:
+        to: ${{ secrets.TELEGRAM_TO }}
+        token: ${{ secrets.TELEGRAM_TOKEN }}
+        message: |
+          ${{ github.actor }} created commit:
+          On Branch: ${{ github.ref }}
+          Commit message: ${{ github.event.commits[0].message }}
+
+          Repository: ${{ github.repository }}
+
+          See changes: https://github.com/${{ github.repository }}/commit/${{github.sha}}
 
   # my_ci_part:
   #   runs-on: ubuntu-latest
