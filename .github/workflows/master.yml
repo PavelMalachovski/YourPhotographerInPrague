@@ -1,19 +1,10 @@
 ---
-#################################
-#################################
-## Super Linter GitHub Actions ##
-#################################
-#################################
 name: Master-YourPhotographerInPrague
 
 ###############################
 #    Environment Parameters   #
 ###############################
 env:
-  EB_PACKAGE_S3_BUCKET_NAME: "yourphotographerinprague"
-  EB_APPLICATION_NAME: "YourPhotographerInPrague"
-  EB_ENVIRONMENT_NAME: "Yourphotographerinprague-env"
-  DEPLOY_PACKAGE_NAME: "ypip_feature_${{ github.sha }}.zip"
   AWS_REGION_NAME: "eu-central-1"
   DOCKER_USER: ${{ secrets.MY_DOCKERHUB_USERNAME }}
   DOCKER_PASSWORD: ${{ secrets.MY_DOCKERHUB_PASSWORD }}
@@ -90,8 +81,8 @@ jobs:
       run: |
         pwd
         ls -la
-         sudo chmod +x "${GITHUB_WORKSPACE}/terraform_copy.sh"
-         sudo bash "${GITHUB_WORKSPACE}/terraform_copy.sh" "${{ secrets.MY_AWS_SECRET_KEY }}" "${{ secrets.MY_AWS_ACCESS_KEY }}"
+         sudo chmod +x "${GITHUB_WORKSPACE}/terraform.sh"
+         sudo bash "${GITHUB_WORKSPACE}/terraform.sh" "${{ secrets.MY_AWS_SECRET_KEY }}" "${{ secrets.MY_AWS_ACCESS_KEY }}"
       shell: bash
 
     # Telegram notification

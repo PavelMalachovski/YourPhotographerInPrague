@@ -43,23 +43,25 @@ fi
 ################################################################################################
 
 echo "============================================================================="
+echo "Grabbing private key output from terraform"
+echo "============================================================================="
+mkdir ~/.ssh
+chmod 700 ~/.ssh
+mv ${PROJECT_DIR}/terraform/YPIP/development/key.pem ~/.ssh/key.pem
+chmod 400 ~/.ssh/key.pem
+eval $(ssh-agent)
+ssh-add -D
+ssh-add ~/.ssh/key.pem
+
+
+echo "============================================================================="
 echo "Grabbing kubespray from git"
 echo "============================================================================="
 rm -rf kubespray
 cd ${PROJECT_DIR}/terraform/YPIP/development
-git clone https://github.com/kubernetes-sigs/kubespray.git \
-&& cd kubespray
+git clone https://github.com/kubernetes-sigs/kubespray.git
+cd kubespray
 
-echo "============================================================================="
-echo "Grabbing private key output from terraform"
-echo "============================================================================="
-# terraform output -raw private_key
-# terraform output -raw private_key >> key.pem
-ls -la ${PROJECT_DIR}/terraform/YPIP/development/
-echo "moving private key..."
-mv ${PROJECT_DIR}/terraform/YPIP/development/key.pem ./key.pem
-ls -la | grep "key"
-chmod 400 key.pem
 
 echo "============================================================================="
 echo "Installing kubespray requirements"
@@ -92,8 +94,4 @@ echo "==========================================================================
 cat inventory/${CLUSTER_NAME}/hosts.yaml
 echo "============================================================================="
 
-echo "============================================================================="
-#cat key.pem
-echo "============================================================================="
-
-ansible-playbook -i inventory/${CLUSTER_NAME}/hosts.yaml cluster.yml --private-key=key.pem --become --become-user=root --user=ubuntu -v
+ansible-playbook -i inventory/${CLUSTER_NAME}/hosts.yaml cluster.yml -e ansible_user=admin -b --become-user=root --flush-cache

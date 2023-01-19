@@ -11,7 +11,7 @@ locals {
 
 resource "null_resource" "cmd" {
     provisioner "local-exec" {
-        command = "echo Terraform apply started: ${local.timestamp_sanitized} >> terraform.log"
+        command = "echo Terraform apply started: ${local.timestamp_sanitized} > terraform.log"
     }
     triggers = {
         always_run = "${timestamp()}"

@@ -1,19 +1,10 @@
 ---
-#################################
-#################################
-## Super Linter GitHub Actions ##
-#################################
-#################################
 name: Feature-YourPhotographerInPrague
 
 ###############################
 #    Environment Parameters   #
 ###############################
 env:
-  EB_PACKAGE_S3_BUCKET_NAME: "yourphotographerinprague"
-  EB_APPLICATION_NAME: "YourPhotographerInPrague"
-  EB_ENVIRONMENT_NAME: "Yourphotographerinprague-env"
-  DEPLOY_PACKAGE_NAME: "ypip_feature_${{ github.sha }}.zip"
   AWS_REGION_NAME: "eu-central-1"
   DOCKER_USER: ${{ secrets.MY_DOCKERHUB_USERNAME }}
   DOCKER_PASSWORD: ${{ secrets.MY_DOCKERHUB_PASSWORD }}
@@ -26,51 +17,51 @@ on:
     # Remove the line above to run when pushing to master
 
 jobs:
-  # my_linter:
-  #   name: my_linter
-  #   runs-on: ubuntu-latest
+  my_linter:
+    name: my_linter
+    runs-on: ubuntu-latest
 
-  #   steps:
-  #     - name: Run code checkout
-  #       uses: actions/checkout@v3
-  #       with:
-  #         # Full git history is needed to get a proper
-  #         # list of changed files within `super-linter`
-  #         fetch-depth: 0
+    steps:
+      - name: Run code checkout
+        uses: actions/checkout@v3
+        with:
+          # Full git history is needed to get a proper
+          # list of changed files within `super-linter`
+          fetch-depth: 0
 
-  #     - name: Run code base linter
-  #       uses: github/super-linter/slim@v4
-  #       env:
-  #         VALIDATE_ALL_CODEBASE: false
-  #         FILTER_REGEX_EXCLUDE: dockerfile|wordpress_static_data/|wordpress\wp-content/|schema/|terraform.sh
-  #         DEFAULT_BRANCH: master
-  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Run code base linter
+        uses: github/super-linter/slim@v4
+        env:
+          VALIDATE_ALL_CODEBASE: false
+          FILTER_REGEX_EXCLUDE: dockerfile|wordpress_static_data/|wordpress\wp-content/|schema/|terraform.sh
+          DEFAULT_BRANCH: master
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  # my_docker:
-  #   name: my_docker
-  #   runs-on: ubuntu-latest
-  #   needs: [my_linter]
+  my_docker:
+    name: my_docker
+    runs-on: ubuntu-latest
+    needs: [my_linter]
 
-  #   steps:
-  #   # Docker login
-  #   - uses: actions/checkout@v3
-  #   - name: Run docker login
-  #     run: |
-  #       docker login -u ${{ env.DOCKER_USER }} -p ${{ env.DOCKER_PASSWORD }}
+    steps:
+    # Docker login
+    - uses: actions/checkout@v3
+    - name: Run docker login
+      run: |
+        docker login -u ${{ env.DOCKER_USER }} -p ${{ env.DOCKER_PASSWORD }}
     
-  #   # Docker Build
-  #   - name: Run docker build wordpress.Dockerfile
-  #     run: |
-  #       docker build -f wordpress.Dockerfile -t pavelmalachovski/yourphotographerinprague:latest .
-  #   - name: Run docker build mysql.Dockerfile
-  #     run: |
-  #       docker build -f mysql.Dockerfile -t pavelmalachovski/mysql_ypip:latest .
+    # Docker Build
+    - name: Run docker build wordpress.Dockerfile
+      run: |
+        docker build -f wordpress.Dockerfile -t pavelmalachovski/yourphotographerinprague:latest .
+    - name: Run docker build mysql.Dockerfile
+      run: |
+        docker build -f mysql.Dockerfile -t pavelmalachovski/mysql_ypip:latest .
     
-  #   # Docker Push
-  #   - name: Run docker push 
-  #     run: |
-  #       docker push pavelmalachovski/yourphotographerinprague:latest
-  #       docker push pavelmalachovski/mysql_ypip:latest
+    # Docker Push
+    - name: Run docker push 
+      run: |
+        docker push pavelmalachovski/yourphotographerinprague:latest
+        docker push pavelmalachovski/mysql_ypip:latest
 
   my_terraform:
     name: my_terraform
