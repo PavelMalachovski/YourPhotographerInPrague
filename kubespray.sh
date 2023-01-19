@@ -45,7 +45,7 @@ fi
 echo "============================================================================="
 echo "Grabbing private key output from terraform"
 echo "============================================================================="
-mkdir ~/.ssh
+# mkdir ~/.ssh
 chmod 700 ~/.ssh
 mv ${PROJECT_DIR}/terraform/YPIP/development/key.pem ~/.ssh/key.pem
 chmod 400 ~/.ssh/key.pem
