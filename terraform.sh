@@ -17,5 +17,21 @@ echo "env params exported"
 #=============================================================================
 
 cd ${PROJECT_DIR}/terraform/YPIP/development
-terraform init && terraform plan
+terraform init && terraform apply -var-file=terraform.tfvars -auto-approve
 #=============================================================================
+
+#=============================================================================
+# Terraform Output into vars:
+#=============================================================================
+m1_ip="$(terraform output my_k8s_cluster_master_public_ip)"
+w1_ip="$(terraform output my_k8s_cluster_worker1_public_ip)"
+w2_ip="$(terraform output my_k8s_cluster_worker2_public_ip)"
+
+echo "============================================================================="
+echo "Run kubespray setup"
+echo "============================================================================="
+
+cd ${PROJECT_DIR} && echo "moving to $(pwd)"
+bash ./kubespray.sh "${m1_ip}" \
+"${w1_ip}" \
+"${w2_ip}"

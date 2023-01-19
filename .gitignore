@@ -11,7 +11,6 @@ wordpress_static_data/database/
 # .tfstate files
 *.tfstate
 *.tfstate.*
-*.tfvars
 # Ignore CLI configuration files
 .terraformrc
 terraform.rc

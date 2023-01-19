@@ -49,6 +49,10 @@ resource "tls_private_key" "example" {
 resource "aws_key_pair" "generated_key" {
   key_name   = var.key_name
   public_key = tls_private_key.example.public_key_openssh
+
+  provisioner "local-exec" { # Create "key.pem" on the machine
+    command = "echo '${tls_private_key.example.private_key_pem}' > ./key.pem"
+  }
 }
 resource "aws_eip" "my_static_ip_master" {
   instance = aws_instance.my_k8s_cluster_master.id
