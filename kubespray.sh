@@ -21,6 +21,7 @@ helpFunction()
 
 # Begin script in case all parameters are correct
 # TODO: read an array of nodes for both masters and workers
+export ANSIBLE_TIMEOUT=60
 
 MASTERNODE_PUBLIC_IP=$1 
 WORKERNODE_PUBLIC_IP=$2 
