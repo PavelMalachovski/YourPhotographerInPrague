@@ -97,4 +97,4 @@ sed -i 's/^[^#]* ip/#&/' inventory/${CLUSTER_NAME}/hosts.yaml  # comment ip line
 cat inventory/${CLUSTER_NAME}/hosts.yaml
 echo "============================================================================="
 
-ansible-playbook -i inventory/${CLUSTER_NAME}/hosts.yaml cluster.yml --private-key ~/.ssh/key.pem -e ansible_user=ubuntu -b --become-user=root --flush-cache
+ansible-playbook -i inventory/${CLUSTER_NAME}/hosts.yaml cluster.yml --private-key ~/.ssh/key.pem -e ansible_user=ubuntu -b --become-user=root --flush-cache -vvv
