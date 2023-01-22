@@ -85,15 +85,16 @@ echo "==========================================================================
 echo "Update Ansible inventory file with inventory builder "
 echo "============================================================================="
 declare -a ADDRESSES=(${MASTERNODE_PUBLIC_IP} ${WORKERNODE_PUBLIC_IP} ${WORKERNODE2_PUBLIC_IP})
-#CONFIG_FILE=inventory/${CLUSTER_NAME}/hosts.yaml python3 contrib/inventory_builder/inventory.py ${ADDRESSES[@]}
-CONFIG_FILE=inventory/${CLUSTER_NAME}/hosts.ini python3 contrib/inventory_builder/inventory.py ${ADDRESSES[@]}
+CONFIG_FILE=inventory/${CLUSTER_NAME}/hosts.yaml python3 contrib/inventory_builder/inventory.py ${ADDRESSES[@]}
+#CONFIG_FILE=inventory/${CLUSTER_NAME}/hosts.ini python3 contrib/inventory_builder/inventory.py ${ADDRESSES[@]}
 
 echo "============================================================================="
 echo "Run kubespray playbook"
 echo "============================================================================="
 ls -la
 echo "============================================================================="
-cat inventory/${CLUSTER_NAME}/hosts.ini
+sed -i 's/^[^#]* ip/#&/' inventory/${CLUSTER_NAME}/hosts.yaml  # comment ip lines
+cat inventory/${CLUSTER_NAME}/hosts.yaml
 echo "============================================================================="
 
-ansible-playbook -i inventory/${CLUSTER_NAME}/hosts.ini cluster.yml --private-key ~/.ssh/key.pem -e ansible_user=ubuntu -b --become-user=root --flush-cache
+ansible-playbook -i inventory/${CLUSTER_NAME}/hosts.yaml cluster.yml --private-key ~/.ssh/key.pem -e ansible_user=ubuntu -b --become-user=root --flush-cache
