@@ -64,9 +64,9 @@ jobs:
   #       docker push pavelmalachovski/mysql_ypip:latest
 
   my_terraform:
-    #name: my_terraform
+    name: my_terraform
     runs-on: ubuntu-latest
-    needs: [my_docker]
+    #needs: [my_docker]
 
     steps:
     # AWS login
