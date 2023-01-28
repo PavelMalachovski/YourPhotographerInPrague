@@ -89,7 +89,7 @@ for IP in ${ADDRESSES[@]}; do
     echo "============================================================================="
     echo "====================apt update for:${IP}========================="
     echo "============================================================================="
-    ssh -i ~/.ssh/key.pem ubuntu@${IP} -- "echo \"nameserver 8.8.8.8\" | sudo tee /etc/resolv.conf > /dev/null && sudo apt update -y && sudo apt upgrade -y"
+    ssh -oStrictHostKeyChecking=no -i ~/.ssh/key.pem ubuntu@${IP} -- "echo \"nameserver 8.8.8.8\" | sudo tee /etc/resolv.conf > /dev/null && sudo apt update -y && sudo apt upgrade -y"
 done 
 
 CONFIG_FILE=inventory/${CLUSTER_NAME}/hosts.yaml python3 contrib/inventory_builder/inventory.py ${ADDRESSES[@]}
