@@ -87,7 +87,7 @@ echo "==========================================================================
 declare -a ADDRESSES=(${MASTERNODE_PUBLIC_IP} ${WORKERNODE_PUBLIC_IP} ${WORKERNODE2_PUBLIC_IP})
 for IP in ${ADDRESSES[@]}; do
     echo "============================================================================="
-    echo "====================apt update for:${IP}========================="
+    echo "=====================apt update for: ${IP}=========================="
     echo "============================================================================="
     ssh -oStrictHostKeyChecking=no -i ~/.ssh/key.pem ubuntu@${IP} -- "echo \"nameserver 8.8.8.8\" | sudo tee /etc/resolv.conf > /dev/null && sudo apt update -y && sudo apt upgrade -y"
 done 
@@ -99,8 +99,8 @@ echo "Run kubespray playbook"
 echo "============================================================================="
 ls -la
 echo "============================================================================="
-sed -i 's/^[^#]* ip/#&/' inventory/sample/hosts.yaml  # comment ip lines
+sed -i 's/^[^#]* ip/#&/' inventory/${CLUSTER_NAME}/hosts.yaml  # comment ip lines
 cat inventory/${CLUSTER_NAME}/hosts.yaml
 echo "============================================================================="
 
-ansible-playbook -i inventory/sample/hosts.yaml cluster.yml --private-key ~/.ssh/key.pem -e 'ansible_python_interpreter=/usr/bin/python3 ansible_user=ubuntu' -b --become-user=root --flush-cache -vvv
+ansible-playbook -i inventory/${CLUSTER_NAME}/hosts.yaml cluster.yml --private-key ~/.ssh/key.pem -e 'ansible_python_interpreter=/usr/bin/python3 ansible_user=ubuntu' -b --become-user=root --flush-cache -vvv
