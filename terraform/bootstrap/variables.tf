@@ -13,3 +13,9 @@ variable "github_repository" {
   type        = string
   default     = "PavelMalachovski/YourPhotographerInPrague"
 }
+
+variable "project_tag" {
+  description = "Value of the Project tag on resources the apply role may destroy (must match common_tag.Project)"
+  type        = string
+  default     = "TeachMeSkills Diploma"
+}
