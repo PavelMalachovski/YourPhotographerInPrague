@@ -1,56 +1,75 @@
-version: '3.7'
+# Local development stack.
+#   cp .env.example .env   # then set real passwords
+#   docker compose up -d
+#   docker compose --profile tools up -d   # also start phpMyAdmin
+#
+# Security notes:
+#   * No credentials in this file — everything comes from .env (git-ignored).
+#   * MySQL is NOT published to the host; only reachable on the internal network.
+#   * WordPress / phpMyAdmin are bound to 127.0.0.1, not to every interface.
+#   * Images are pinned to a major/minor version instead of :latest.
 
 volumes:
-  wp-data:
-  wordpress:
+  db-data:
+
 networks:
   wordpress-network:
 
 services:
   db:
     container_name: wordpress_db
-    image: mysql:5.7
+    image: mysql:8.4
+    restart: unless-stopped
     volumes:
-      - ./wordpress_static_data/database:/var/lib/mysql
-      - ./wordpress_static_data/schema:/docker-entrypoint-initdb.d
+      - db-data:/var/lib/mysql
+      # Optional: drop a *private* SQL dump into this (git-ignored) folder
+      # to seed the database on first start.
+      - ./wordpress_static_data/schema:/docker-entrypoint-initdb.d:ro
     environment:
-       MYSQL_ROOT_PASSWORD: rootPassword
-       MYSQL_DATABASE: wordpress
-       MYSQL_USER: wp-user
-       MYSQL_PASSWORD: wp-pass
-    ports:
-      - 8889:3306
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?set MYSQL_ROOT_PASSWORD in .env}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-wordpress}
+      MYSQL_USER: ${MYSQL_USER:?set MYSQL_USER in .env}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?set MYSQL_PASSWORD in .env}
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
     networks:
       - wordpress-network
 
   phpmyadmin:
     container_name: wordpress-phpmyadmin
+    # Admin tool: only started on demand (`--profile tools`) and only on localhost.
+    profiles: ["tools"]
     depends_on:
-      - db
-    image: phpmyadmin/phpmyadmin
+      db:
+        condition: service_healthy
+    image: phpmyadmin:5.2
     environment:
       PMA_HOST: db
-      MYSQL_USER: wp-user
-      MYSQL_PASSWORD: wp-pass
-      MYSQL_ROOT_PASSWORD: rootPassword
     ports:
-      - 3001:80
+      - "127.0.0.1:${PHPMYADMIN_PORT:-3001}:80"
     networks:
       - wordpress-network
 
   wordpress:
     container_name: wordpress-site
     depends_on:
-      - db
-    image: wordpress:latest
+      db:
+        condition: service_healthy
+    image: wordpress:6-php8.3-apache
+    restart: unless-stopped
     ports:
-      - 8888:80
-      - 443:443
+      - "127.0.0.1:${WORDPRESS_PORT:-8888}:80"
     environment:
-       WORDPRESS_DB_HOST: db
-       WORDPRESS_DB_USER: wp-user
-       WORDPRESS_DB_PASSWORD: wp-pass
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_NAME: ${MYSQL_DATABASE:-wordpress}
+      WORDPRESS_DB_USER: ${MYSQL_USER:?set MYSQL_USER in .env}
+      WORDPRESS_DB_PASSWORD: ${MYSQL_PASSWORD:?set MYSQL_PASSWORD in .env}
+      WORDPRESS_CONFIG_EXTRA: |
+        define('DISALLOW_FILE_EDIT', true);
     volumes:
-      - ./wordpress_static_data/wordpress/:/var/www/html
+      - ./wordpress_static_data/wordpress/wp-content:/var/www/html/wp-content
     networks:
       - wordpress-network
