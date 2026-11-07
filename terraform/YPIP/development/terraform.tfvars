@@ -1,14 +1,12 @@
-region = "eu-central-1"
-owners = ["amazon"]
-latest_amazon_linux = ["ubuntu/images/hvm-ssd/ubuntu-bionic-18.04-amd64-server-*"]
-master_instance_type = "t2.small"
-worker_instance_type = "t2.small"
-detailed_monitoring = false
-environment = "development"
-vpc_cidr = "10.0.0.0/16"
-public_subnet_cidrs = ["10.0.1.0/24"]
-key_name = "key"
+region               = "eu-central-1"
+master_instance_type = "t3.small"
+worker_instance_type = "t3.small"
+detailed_monitoring  = false
+environment          = "development"
+key_name             = "k8s-key"
 common_tag = {
-    Owner = "Pavel Malachovski"
-    Project = "TeachMeSkills Diploma"
+  Owner   = "Pavel Malachovski"
+  Project = "TeachMeSkills Diploma"
 }
+# admin_cidr_blocks is intentionally not set here — pass it via
+# TF_VAR_admin_cidr_blocks='["<your-ip>/32"]' so your IP is not committed.

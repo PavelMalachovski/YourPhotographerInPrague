@@ -1,98 +1,115 @@
 #=============================================================================
 # My Terraform Infrastructure
-# Provision Highly Available Web site in any region Default VPC
+# 3-node Kubernetes cluster (1 master + 2 workers) for the WordPress site.
 # Create:
-#   - Security Group for K8s Servers
-#   - Launch Configuration with auto AMI lookup
-#   - Auto Scaling group using 2 availability zones
-#   - Classic Load Balancer in 2 availability zones
+#   - Security Group for K8s nodes (admin ports restricted to admin_cidr_blocks)
+#   - SSH key pair (private key kept only in encrypted remote state + 0400 file)
+#   - 3 EC2 instances: encrypted EBS, IMDSv2 only, Ubuntu 22.04 LTS
+#   - Elastic IPs
 #
 # Pavel Malachovski
 #=============================================================================
 
-#=============================================================================
-# Provider and Modules
-#=============================================================================
-
 provider "aws" {
-    region = var.region
+  region = var.region
+
+  default_tags {
+    tags = var.common_tag
+  }
 }
 
 module "aws_security_group" {
-    source = "../../modules/aws_security_group"
-    allow_ports = ["22","80","443","8080","1541","9092"]
+  source            = "../../modules/aws_security_group"
+  environment       = var.environment
+  common_tag        = var.common_tag
+  admin_cidr_blocks = var.admin_cidr_blocks
 }
 
 #=============================================================================
 # Data Source
 #=============================================================================
 
-data "aws_availability_zones" "available" {}
+data "aws_ami" "ubuntu" {
+  owners      = var.ami_owners
+  most_recent = true
 
-data "aws_ami" "latest_amazon_linux" {
-    owners = var.owners
-    most_recent = true
-    filter {
-        name = "name"
-        values = var.latest_amazon_linux
-    }
+  filter {
+    name   = "name"
+    values = var.ami_name_filter
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
 }
 
 #=============================================================================
-# Resources
+# SSH key
 #=============================================================================
 resource "tls_private_key" "example" {
-  algorithm = "RSA"
-  rsa_bits  = 4096
+  algorithm = "ED25519"
 }
 
 resource "aws_key_pair" "generated_key" {
-  key_name   = var.key_name
+  key_name   = "${var.environment}-${var.key_name}"
   public_key = tls_private_key.example.public_key_openssh
+}
 
-  provisioner "local-exec" { # Create "key.pem" on the machine
-    command = "echo '${tls_private_key.example.private_key_pem}' > ./key.pem"
+# Written with 0400 perms instead of `echo '<key>' > key.pem` (which put the
+# key on a command line and could leak it to logs / process list).
+resource "local_sensitive_file" "private_key" {
+  content         = tls_private_key.example.private_key_openssh
+  filename        = "${path.module}/key.pem"
+  file_permission = "0400"
+}
+
+#=============================================================================
+# Instances
+#=============================================================================
+locals {
+  nodes = {
+    master  = var.master_instance_type
+    worker1 = var.worker_instance_type
+    worker2 = var.worker_instance_type
   }
 }
-resource "aws_eip" "my_static_ip_master" {
-  instance = aws_instance.my_k8s_cluster_master.id
-  tags = merge(var.common_tag, { Name = "${var.environment} Master Elastic IP"})
+
+resource "aws_instance" "node" {
+  for_each = local.nodes
+
+  ami                    = data.aws_ami.ubuntu.id
+  key_name               = aws_key_pair.generated_key.key_name
+  instance_type          = each.value
+  monitoring             = var.detailed_monitoring
+  ebs_optimized          = true
+  vpc_security_group_ids = [module.aws_security_group.my_sg_id]
+
+  # IMDSv2 only — blocks SSRF-style credential theft via IMDSv1.
+  metadata_options {
+    http_endpoint               = "enabled"
+    http_tokens                 = "required"
+    http_put_response_hop_limit = 2 # containers on the node still need IMDS
+  }
+
+  root_block_device {
+    volume_type           = "gp3"
+    volume_size           = var.root_volume_size
+    encrypted             = true
+    delete_on_termination = true
+  }
+
+  tags = { Name = "${var.environment} ${each.value} ${upper(each.key)} by Terraform" }
+
+  lifecycle {
+    ignore_changes = [ami] # don't replace nodes every time a new AMI ships
+  }
 }
 
-resource "aws_eip" "my_static_ip_worker1" {
-  instance = aws_instance.my_k8s_cluster_worker1.id
-  tags = merge(var.common_tag, { Name = "${var.environment} Worker1 Elastic IP"})
-}
+resource "aws_eip" "node" {
+  for_each = aws_instance.node
 
-resource "aws_eip" "my_static_ip_worker2" {
-  instance = aws_instance.my_k8s_cluster_worker2.id
-  tags = merge(var.common_tag, { Name = "${var.environment} Worker2 Elastic IP"})
+  domain   = "vpc"
+  instance = each.value.id
+  tags     = { Name = "${var.environment} ${title(each.key)} Elastic IP" }
 }
-
-resource "aws_instance" "my_k8s_cluster_master" {
-    ami = data.aws_ami.latest_amazon_linux.id
-    key_name = aws_key_pair.generated_key.key_name
-    instance_type = var.master_instance_type
-    monitoring = var.detailed_monitoring
-    vpc_security_group_ids = [module.aws_security_group.my_sg_id]
-    tags = merge(var.common_tag, { Name = "${var.environment} ${var.master_instance_type} MASTER by Terraform"})
-}
-
-resource "aws_instance" "my_k8s_cluster_worker1" {
-    ami = data.aws_ami.latest_amazon_linux.id
-    key_name = aws_key_pair.generated_key.key_name
-    instance_type = var.worker_instance_type
-    monitoring = var.detailed_monitoring
-    vpc_security_group_ids = [module.aws_security_group.my_sg_id]
-    tags = merge(var.common_tag, { Name = "${var.environment} ${var.worker_instance_type} WORKER1 by Terraform"})
-}
-
-resource "aws_instance" "my_k8s_cluster_worker2" {
-    ami = data.aws_ami.latest_amazon_linux.id
-    key_name = aws_key_pair.generated_key.key_name
-    instance_type = var.worker_instance_type
-    monitoring = var.detailed_monitoring
-    vpc_security_group_ids = [module.aws_security_group.my_sg_id]
-    tags = merge(var.common_tag, { Name = "${var.environment} ${var.worker_instance_type} WORKER2 by Terraform"})
-}
-#=============================================================================

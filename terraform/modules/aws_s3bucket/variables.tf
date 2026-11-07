@@ -1,21 +1,17 @@
-variable "aws_region" {
-    description = "The AWS region to use to create resources"
-    default = "eu-central-1"
+variable "bucket_name" {
+  description = "Globally unique bucket name. Empty = <environment>-ypip-s3-bucket"
+  type        = string
+  default     = ""
 }
 
 variable "versioning" {
-    type = string
-    description = "A state of versioning"
-    default = "Disabled"
-}
-
-variable "acl" {
-    type = string
-    description = "defaults to private"
-    default = "private"
+  type        = string
+  description = "Versioning state (keep Enabled for Terraform state)"
+  default     = "Enabled"
 }
 
 variable "environment" {
-    description = "environment type"
-    default = "development"
+  description = "environment type"
+  type        = string
+  default     = "development"
 }
