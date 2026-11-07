@@ -1,22 +1,46 @@
 !terraform/YPIP/development/
 !terraform/YPIP/
 !terraform/modules/
-wordpress_static_data/wordpress/
-wordpress_static_data/database/
+wordpress_static_data/wordpress/*
 !wordpress_static_data/wordpress/wp-content/
+wordpress_static_data/database/
 
-# Local .terraform directories
+# ---------------------------------------------------------------------------
+# Secrets & sensitive data — never commit these
+# ---------------------------------------------------------------------------
+.env
+.env.*
+!.env.example
+wp-config.php
+*.pem
+*.key
+id_rsa*
+# Database dumps contain user hashes / PII. Keep them local only.
+*.sql
+*.sql.gz
+wordpress_static_data/schema/
+# Media library: client photos, kept out of the public repo
+wordpress_static_data/wordpress/wp-content/uploads/
+# All-in-One WP Migration archives (full site + DB)
+*.wpress
+
+# ---------------------------------------------------------------------------
+# Terraform
+# ---------------------------------------------------------------------------
 .terraform/
-
-# .tfstate files
 *.tfstate
 *.tfstate.*
-# Ignore CLI configuration files
+*.tfplan
+tfplan
+crash.log
 .terraformrc
 terraform.rc
-
-*.hcl
-*.tfstate
+# Backend config with real bucket names (see backend.hcl.example)
+backend.hcl
 *.backup
-*.pem
 
+# kubespray checkout created by kubespray.sh
+terraform/YPIP/development/kubespray/
+
+# Temporary kustomize overlay created by deploy_app.sh
+k8s/overlays/.deploy/

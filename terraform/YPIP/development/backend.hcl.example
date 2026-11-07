@@ -1,0 +1,3 @@
+# cp backend.hcl.example backend.hcl && terraform init -backend-config=backend.hcl
+# The bucket is created by terraform/bootstrap.
+bucket = "CHANGE-ME-ypip-tfstate"

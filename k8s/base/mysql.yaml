@@ -1,0 +1,111 @@
+# MySQL 8.4 LTS as a single-replica StatefulSet.
+# Credentials come from the Secret "wordpress-db", created out-of-band
+# (see deploy_app.sh), never from this repo.
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+  namespace: ypip
+  labels:
+    app.kubernetes.io/name: mysql
+spec:
+  clusterIP: None
+  selector:
+    app.kubernetes.io/name: mysql
+  ports:
+    - name: mysql
+      port: 3306
+      targetPort: mysql
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mysql
+  namespace: ypip
+  labels:
+    app.kubernetes.io/name: mysql
+  annotations:
+    checkov.io/skip1: CKV_K8S_11=No CPU limit on purpose - avoids CFS throttling; memory is limited
+    checkov.io/skip2: CKV_K8S_40=UID 999 is fixed by the official mysql image
+    checkov.io/skip3: CKV_K8S_22=mysqld writes socket/tmp files; read-only rootfs not validated yet
+    checkov.io/skip4: CKV_K8S_43=Pinned to the 8.4 LTS tag; digest pinning would block security patches
+    checkov.io/skip5: CKV_K8S_15=IfNotPresent with a pinned tag is intended
+spec:
+  serviceName: mysql
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: mysql
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: mysql
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 999 # "mysql" user of the official image
+        runAsGroup: 999
+        fsGroup: 999
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: mysql
+          image: mysql:8.4
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: mysql
+              containerPort: 3306
+          env:
+            - name: MYSQL_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name: wordpress-config
+                  key: MYSQL_DATABASE
+            # Secrets are read from files (*_FILE), not exposed as env values.
+            - name: MYSQL_ROOT_PASSWORD_FILE
+              value: /run/secrets/db/mysql-root-password
+            - name: MYSQL_USER_FILE
+              value: /run/secrets/db/mysql-user
+            - name: MYSQL_PASSWORD_FILE
+              value: /run/secrets/db/mysql-password
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: 100m
+              memory: 512Mi
+            limits:
+              memory: 1Gi
+          readinessProbe:
+            exec:
+              command: ["sh", "-c", "mysqladmin ping -h 127.0.0.1 --silent"]
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          livenessProbe:
+            exec:
+              command: ["sh", "-c", "mysqladmin ping -h 127.0.0.1 --silent"]
+            initialDelaySeconds: 60
+            periodSeconds: 20
+            timeoutSeconds: 5
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/mysql
+            - name: db-secret
+              mountPath: /run/secrets/db
+              readOnly: true
+      volumes:
+        - name: db-secret
+          secret:
+            secretName: wordpress-db
+            defaultMode: 0440
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 5Gi

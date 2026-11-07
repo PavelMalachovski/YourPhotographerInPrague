@@ -1,0 +1,11 @@
+# Gitleaks config used by CI. Extends the default ruleset.
+title = "YourPhotographerInPrague gitleaks config"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Vendored third-party WordPress themes/plugins (minified JS with example keys)"
+paths = [
+  '''wordpress_static_data/wordpress/wp-content/(plugins|themes)/''',
+]

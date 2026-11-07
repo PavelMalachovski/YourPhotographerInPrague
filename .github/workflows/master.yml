@@ -1,141 +1,114 @@
 ---
 name: Master-YourPhotographerInPrague
 
-###############################
-#    Environment Parameters   #
-###############################
-env:
-  AWS_REGION_NAME: "eu-central-1"
-  DOCKER_USER: ${{ secrets.MY_DOCKERHUB_USERNAME }}
-  DOCKER_PASSWORD: ${{ secrets.MY_DOCKERHUB_PASSWORD }}
-  AWS_SECRET_KEY: ${{ secrets.MY_AWS_SECRET_KEY }}
-  AWS_ACCESS_KEY: ${{ secrets.MY_AWS_ACCESS_KEY }}
-
 on:
   push:
-    branches: 
+    branches:
       - master
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Never run two applies against the same state at once.
+concurrency:
+  group: production
+  cancel-in-progress: false
+
+env:
+  AWS_REGION: "eu-central-1"
+  TF_VERSION: "1.12.2"
+  IMAGE: pavelmalachovski/yourphotographerinprague
 
 jobs:
-  # my_linter:
-  #   name: my_linter
-  #   runs-on: ubuntu-latest
-
-  #   steps:
-  #     - name: Run code checkout
-  #       uses: actions/checkout@v3
-  #       with:
-  #         # Full git history is needed to get a proper
-  #         # list of changed files within `super-linter`
-  #         fetch-depth: 0
-
-  #     - name: Run code base linter
-  #       uses: github/super-linter/slim@v4
-  #       env:
-  #         VALIDATE_ALL_CODEBASE: false
-  #         FILTER_REGEX_EXCLUDE: dockerfile|wordpress_static_data/|wordpress\wp-content/|schema/|terraform.sh|kubespray.sh|master.yml
-  #         DEFAULT_BRANCH: master
-  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  # my_docker:
-  #   name: my_docker
-  #   runs-on: ubuntu-latest
-  #   needs: [my_linter]
-
-  #   steps:
-  #   # Docker login
-  #   - uses: actions/checkout@v3
-  #   - name: Run docker login
-  #     run: |
-  #       docker login -u ${{ env.DOCKER_USER }} -p ${{ env.DOCKER_PASSWORD }}
-    
-  #   # Docker Build
-  #   - name: Run docker build wordpress.Dockerfile
-  #     run: |
-  #       docker build -f wordpress.Dockerfile -t pavelmalachovski/yourphotographerinprague:latest .
-  #   - name: Run docker build mysql.Dockerfile
-  #     run: |
-  #       docker build -f mysql.Dockerfile -t pavelmalachovski/mysql_ypip:latest .
-    
-  #   # Docker Push
-  #   - name: Run docker push 
-  #     run: |
-  #       docker push pavelmalachovski/yourphotographerinprague:latest
-  #       docker push pavelmalachovski/mysql_ypip:latest
-
-  my_terraform:
-    name: my_terraform
+  security_scan:
+    name: security_scan
     runs-on: ubuntu-latest
-    #needs: [my_docker]
-
     steps:
-    # AWS login
-    - name: Configure AWS Credentials
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ secrets.MY_AWS_ACCESS_KEY }}
-        aws-secret-access-key: ${{ secrets.MY_AWS_SECRET_KEY }}
-        aws-region: eu-central-1
-    - uses: actions/checkout@v3
-    - name: Run terraform.sh
-      run: |
-        pwd
-        ls -la
-         sudo chmod +x "${GITHUB_WORKSPACE}/terraform.sh"
-         sudo bash "${GITHUB_WORKSPACE}/terraform.sh" "${{ secrets.MY_AWS_SECRET_KEY }}" "${{ secrets.MY_AWS_ACCESS_KEY }}"
-      shell: bash
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Gitleaks
+        uses: gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e # v3.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Checkov
+        uses: bridgecrewio/checkov-action@45edc9d8856b664db2ec251f5f8632361f0a67aa # v12.3139.0
+        with:
+          config_file: .checkov.yaml
 
-    # Telegram notification
-    - name: Send telegram message
-      uses: appleboy/telegram-action@master
-      with:
-        to: ${{ secrets.TELEGRAM_TO }}
-        token: ${{ secrets.TELEGRAM_TOKEN }}
-        message: |
-          ${{ github.actor }} created commit:
-          On Branch: ${{ github.ref }}
-          Commit message: ${{ github.event.commits[0].message }}
+  docker:
+    name: docker
+    runs-on: ubuntu-latest
+    needs: [security_scan]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      # Token is passed via stdin by the action — not as `docker login -p`.
+      - name: Docker Hub login
+        uses: docker/login-action@8aa5831fb8d48d8f76594c7ddde61ae58019f550 # v4.8.0
+        with:
+          username: ${{ secrets.MY_DOCKERHUB_USERNAME }}
+          password: ${{ secrets.MY_DOCKERHUB_TOKEN }}
+      - name: Build & push wordpress image
+        run: |
+          docker build -f wordpress.Dockerfile -t "$IMAGE:${GITHUB_SHA::12}" -t "$IMAGE:latest" .
+          docker push "$IMAGE:${GITHUB_SHA::12}"
+          docker push "$IMAGE:latest"
 
-          Repository: ${{ github.repository }}
+  terraform_apply:
+    name: terraform_apply
+    runs-on: ubuntu-latest
+    # Deploys the image built by the docker job (tag = first 12 chars of the SHA).
+    needs: [security_scan, docker]
+    # Protected environment: configure required reviewers and restrict
+    # deployment branches to `master` in Settings -> Environments.
+    # The AWS apply role trusts ONLY this environment (see terraform/bootstrap).
+    environment: production
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+          terraform_wrapper: false
+      - name: Configure AWS credentials (OIDC, apply role)
+        uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
+        with:
+          role-to-assume: ${{ vars.AWS_APPLY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+      - name: terraform apply + kubespray
+        env:
+          TF_STATE_BUCKET: ${{ vars.TF_STATE_BUCKET }}
+          ADMIN_CIDR: ${{ vars.ADMIN_CIDR }}
+          K8S_OVERLAY: ${{ vars.K8S_OVERLAY || 'dev' }}
+          # Environment-scoped secrets (Settings -> Environments -> production)
+          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
+          MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
+        run: |
+          export IMAGE_TAG="${GITHUB_SHA::12}"
+          bash ./terraform_apply.sh
 
-          See changes: https://github.com/${{ github.repository }}/commit/${{github.sha}}
-
-  # my_ci_part:
-  #   runs-on: ubuntu-latest
-  #   needs: [my_linter]
-  #   steps:
-  #     - name: Git clone our repo
-  #       uses: actions/checkout@v3
-  #       with:
-  #         # Checkout files larger than 100mb
-  #         lfs: true
-        
-  #     - name: Create zip deployment package
-  #       run: zip -r ${{ env.DEPLOY_PACKAGE_NAME }} ./ -x -- *.git*
-        
-  #     - name: Configure my AWS Creds
-  #       uses: aws-actions/configure-aws-credentials@v1
-  #       with:
-  #         aws-access-key-id: ${{ secrets.MY_AWS_ACCESS_KEY }}
-  #         aws-secret-access-key: ${{ secrets.MY_AWS_SECRET_KEY }}
-  #         aws-region: ${{ env.AWS_REGION_NAME }}
-          
-  #     - name: Copy Deployment Package to S3 Bucket
-  #       run: aws s3 cp ${{ env.DEPLOY_PACKAGE_NAME }} s3://${{ env.EB_PACKAGE_S3_BUCKET_NAME }}/
-        
-  #     - name: Print CI part finished successfully
-  #       run: echo "CI part finished successfully"
-
-  #     - name: Send telegram message
-  #       uses: appleboy/telegram-action@master
-  #       with:
-  #         to: ${{ secrets.TELEGRAM_TO }}
-  #         token: ${{ secrets.TELEGRAM_TOKEN }}
-  #         message: |
-  #           ${{ github.actor }} created commit:
-  #           On Branch: ${{ github.ref }}
-  #           Commit message: ${{ github.event.commits[0].message }}
-
-  #           Repository: ${{ github.repository }}
-
-  #           See changes: https://github.com/${{ github.repository }}/commit/${{github.sha}}
+  notify:
+    name: notify
+    runs-on: ubuntu-latest
+    needs: [docker, terraform_apply]
+    if: always()
+    steps:
+      # Isolated job: the third-party action never sees AWS / Docker credentials.
+      - name: Send telegram message
+        uses: appleboy/telegram-action@214f06cfa3d3a588c1472116889437e7c6fd29b1 # v1.1.1
+        with:
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          message: |
+            ${{ github.actor }} pushed to ${{ github.ref_name }}
+            docker: ${{ needs.docker.result }} | deploy: ${{ needs.terraform_apply.result }}
+            Repository: ${{ github.repository }}
+            See changes: https://github.com/${{ github.repository }}/commit/${{ github.sha }}

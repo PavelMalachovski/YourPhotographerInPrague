@@ -1,0 +1,12 @@
+# Production: real domain + TLS from Let's Encrypt via cert-manager.
+# Set the domain and e-mail below before applying.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../base
+  - cluster-issuer.yaml
+patches:
+  - path: ingress-tls.yaml
+    target:
+      kind: Ingress
+      name: wordpress
