@@ -1,141 +1,102 @@
 ---
 name: Feature-YourPhotographerInPrague
 
-###############################
-#    Environment Parameters   #
-###############################
-env:
-  AWS_REGION_NAME: "eu-central-1"
-  DOCKER_USER: ${{ secrets.MY_DOCKERHUB_USERNAME }}
-  DOCKER_PASSWORD: ${{ secrets.MY_DOCKERHUB_PASSWORD }}
-  AWS_SECRET_KEY: ${{ secrets.MY_AWS_SECRET_KEY }}
-  AWS_ACCESS_KEY: ${{ secrets.MY_AWS_ACCESS_KEY }}
-
 on:
   push:
     branches-ignore: [master, main]
-    # Remove the line above to run when pushing to master
+  pull_request:
+    branches: [master]
+
+# Least privilege by default; jobs opt in to more.
+permissions:
+  contents: read
+
+concurrency:
+  group: feature-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  AWS_REGION: "eu-central-1"
+  TF_VERSION: "1.12.2"
 
 jobs:
-  my_linter:
-    name: my_linter
+  security_scan:
+    name: security_scan
     runs-on: ubuntu-latest
-
     steps:
-      - name: Run code checkout
-        uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          # Full git history is needed to get a proper
-          # list of changed files within `super-linter`
           fetch-depth: 0
+          persist-credentials: false
 
-      - name: Run code base linter
-        uses: github/super-linter/slim@v4
+      # Secret scanning over the full git history.
+      - name: Gitleaks
+        uses: gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e # v3.0.0
         env:
-          VALIDATE_ALL_CODEBASE: false
-          FILTER_REGEX_EXCLUDE: dockerfile|wordpress_static_data/|wordpress\wp-content/|schema/|terraform.sh
-          DEFAULT_BRANCH: master
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  my_docker:
-    name: my_docker
+      # IaC / Dockerfile / workflow misconfiguration scanning.
+      - name: Checkov
+        uses: bridgecrewio/checkov-action@45edc9d8856b664db2ec251f5f8632361f0a67aa # v12.3139.0
+        with:
+          config_file: .checkov.yaml
+
+  terraform_lint:
+    name: terraform_lint
     runs-on: ubuntu-latest
-    needs: [my_linter]
-
     steps:
-    # Docker login
-    - uses: actions/checkout@v3
-    - name: Run docker login
-      run: |
-        docker login -u ${{ env.DOCKER_USER }} -p ${{ env.DOCKER_PASSWORD }}
-    
-    # Docker Build
-    - name: Run docker build wordpress.Dockerfile
-      run: |
-        docker build -f wordpress.Dockerfile -t pavelmalachovski/yourphotographerinprague:latest .
-    - name: Run docker build mysql.Dockerfile
-      run: |
-        docker build -f mysql.Dockerfile -t pavelmalachovski/mysql_ypip:latest .
-    
-    # Docker Push
-    - name: Run docker push 
-      run: |
-        docker push pavelmalachovski/yourphotographerinprague:latest
-        docker push pavelmalachovski/mysql_ypip:latest
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+      - name: terraform fmt
+        run: terraform fmt -check -recursive terraform/YPIP terraform/bootstrap terraform/modules/aws_security_group terraform/modules/aws_s3bucket
+      - name: terraform validate
+        run: |
+          for d in terraform/YPIP/development terraform/bootstrap; do
+            terraform -chdir="$d" init -backend=false -input=false
+            terraform -chdir="$d" validate
+          done
 
-  my_terraform:
-    name: my_terraform
+  docker_build:
+    name: docker_build
     runs-on: ubuntu-latest
-    #needs: [my_docker]
-
+    needs: [security_scan]
     steps:
-    # AWS login
-    - name: Configure AWS Credentials
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ secrets.MY_AWS_ACCESS_KEY }}
-        aws-secret-access-key: ${{ secrets.MY_AWS_SECRET_KEY }}
-        aws-region: eu-central-1
-    - uses: actions/checkout@v3
-    - name: Run terraform.sh
-      run: |
-        pwd
-        ls -la
-         sudo chmod +x "${GITHUB_WORKSPACE}/terraform_copy.sh"
-         sudo bash "${GITHUB_WORKSPACE}/terraform_copy.sh" "${{ secrets.MY_AWS_SECRET_KEY }}" "${{ secrets.MY_AWS_ACCESS_KEY }}"
-      shell: bash
-    
-    # Telegram notification
-    - name: Send telegram message
-      uses: appleboy/telegram-action@master
-      with:
-        to: ${{ secrets.TELEGRAM_TO }}
-        token: ${{ secrets.TELEGRAM_TOKEN }}
-        message: |
-          ${{ github.actor }} created commit:
-          On Branch: ${{ github.ref }}
-          Commit message: ${{ github.event.commits[0].message }}
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      # Build only — feature branches must not overwrite published images.
+      - name: Build wordpress image
+        run: docker build -f wordpress.Dockerfile -t yourphotographerinprague:${{ github.sha }} .
 
-          Repository: ${{ github.repository }}
-
-          See changes: https://github.com/${{ github.repository }}/commit/${{github.sha}}
-
-  # my_ci_part:
-  #   runs-on: ubuntu-latest
-  #   needs: [my_linter]
-  #   steps:
-  #     - name: Git clone our repo
-  #       uses: actions/checkout@v3
-  #       with:
-  #         # Checkout files larger than 100mb
-  #         lfs: true
-        
-  #     - name: Create zip deployment package
-  #       run: zip -r ${{ env.DEPLOY_PACKAGE_NAME }} ./ -x -- *.git*
-        
-  #     - name: Configure my AWS Creds
-  #       uses: aws-actions/configure-aws-credentials@v1
-  #       with:
-  #         aws-access-key-id: ${{ secrets.MY_AWS_ACCESS_KEY }}
-  #         aws-secret-access-key: ${{ secrets.MY_AWS_SECRET_KEY }}
-  #         aws-region: ${{ env.AWS_REGION_NAME }}
-          
-  #     - name: Copy Deployment Package to S3 Bucket
-  #       run: aws s3 cp ${{ env.DEPLOY_PACKAGE_NAME }} s3://${{ env.EB_PACKAGE_S3_BUCKET_NAME }}/
-        
-  #     - name: Print CI part finished successfully
-  #       run: echo "CI part finished successfully"
-
-  #     - name: Send telegram message
-  #       uses: appleboy/telegram-action@master
-  #       with:
-  #         to: ${{ secrets.TELEGRAM_TO }}
-  #         token: ${{ secrets.TELEGRAM_TOKEN }}
-  #         message: |
-  #           ${{ github.actor }} created commit:
-  #           On Branch: ${{ github.ref }}
-  #           Commit message: ${{ github.event.commits[0].message }}
-
-  #           Repository: ${{ github.repository }}
-
-  #           See changes: https://github.com/${{ github.repository }}/commit/${{github.sha}}
+  terraform_plan:
+    name: terraform_plan
+    runs-on: ubuntu-latest
+    needs: [security_scan, terraform_lint]
+    # PRs from forks get no OIDC token / secrets.
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+    permissions:
+      contents: read
+      id-token: write # GitHub OIDC -> AWS, no static keys
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+          terraform_wrapper: false
+      - name: Configure AWS credentials (OIDC, read-only role)
+        uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
+        with:
+          role-to-assume: ${{ vars.AWS_PLAN_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+      - name: terraform plan
+        env:
+          TF_STATE_BUCKET: ${{ vars.TF_STATE_BUCKET }}
+          TF_VAR_admin_cidr_blocks: '["${{ vars.ADMIN_CIDR }}"]'
+        run: bash ./terraform_plan.sh

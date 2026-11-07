@@ -1,0 +1,34 @@
+# Checkov configuration used by CI (.github/workflows/*.yml).
+# Every skip below is a conscious, documented risk acceptance.
+directory:
+  - .
+framework:
+  - terraform
+  - dockerfile
+  - github_actions
+  - secrets
+skip-path:
+  # Third-party WordPress theme/plugin code, not ours to fix.
+  - wordpress_static_data
+  # Legacy modules, not referenced by any stack.
+  - terraform/modules/aws_infrastructure
+  - terraform/modules/aws_network
+skip-check:
+  # Detailed (1-min) CloudWatch monitoring costs extra; not needed for dev.
+  - CKV_AWS_126
+  # Nodes are bootstrapped by kubespray over SSH and need no AWS API access,
+  # so no instance profile is attached (least privilege).
+  - CKV2_AWS_41
+  # State bucket: SSE-S3 + versioning + TLS-only + public access block are on.
+  # Access logging, CRR, lifecycle, event notifications and a KMS CMK are
+  # out of scope (cost/complexity) for a single-developer project.
+  - CKV_AWS_18
+  - CKV_AWS_144
+  - CKV_AWS_145
+  - CKV2_AWS_61
+  - CKV2_AWS_62
+  # The official wordpress image starts as root and drops Apache workers to
+  # www-data; a USER directive would break its entrypoint.
+  - CKV_DOCKER_3
+compact: true
+quiet: true
