@@ -1,0 +1,132 @@
+# WordPress (theme + plugins baked into the image, see wordpress.Dockerfile).
+# Only the media library (uploads) is persisted on a volume.
+apiVersion: v1
+kind: Service
+metadata:
+  name: wordpress
+  namespace: ypip
+  labels:
+    app.kubernetes.io/name: wordpress
+spec:
+  selector:
+    app.kubernetes.io/name: wordpress
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: wordpress-uploads
+  namespace: ypip
+  labels:
+    app.kubernetes.io/name: wordpress
+spec:
+  accessModes: ["ReadWriteOnce"]
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wordpress
+  namespace: ypip
+  labels:
+    app.kubernetes.io/name: wordpress
+  annotations:
+    checkov.io/skip1: CKV_K8S_11=No CPU limit on purpose - avoids CFS throttling; memory is limited
+    checkov.io/skip2: CKV_K8S_23=Official image starts Apache as root on :80, workers run as www-data
+    checkov.io/skip3: CKV_K8S_40=See CKV_K8S_23
+    checkov.io/skip4: CKV_K8S_25=Minimal caps Apache needs to bind :80 and drop to www-data; all others dropped
+    checkov.io/skip5: CKV_K8S_22=Entrypoint copies WordPress core into /var/www/html at start
+    checkov.io/skip6: CKV_K8S_43=Immutable git-SHA tag is set at deploy time (deploy_app.sh)
+    checkov.io/skip7: CKV_K8S_14=Base uses latest; deploy_app.sh pins the git-SHA tag
+    checkov.io/skip8: CKV_K8S_15=IfNotPresent with immutable SHA tags is intended
+spec:
+  # RWO volume: one replica, replace instead of rolling to avoid two pods
+  # fighting over the same volume.
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: wordpress
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: wordpress
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: wordpress
+          image: wordpress-app # rewritten by kustomize "images"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 80
+          env:
+            - name: WORDPRESS_DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: wordpress-config
+                  key: WORDPRESS_DB_HOST
+            - name: WORDPRESS_DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: wordpress-config
+                  key: MYSQL_DATABASE
+            # Read from mounted files, not exposed as env values.
+            - name: WORDPRESS_DB_USER_FILE
+              value: /run/secrets/db/mysql-user
+            - name: WORDPRESS_DB_PASSWORD_FILE
+              value: /run/secrets/db/mysql-password
+          # The official image starts Apache as root (port 80) and drops
+          # workers to www-data, so it cannot run as non-root. Keep only the
+          # capabilities Apache and the entrypoint actually need.
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+              add: ["CHOWN", "DAC_OVERRIDE", "FOWNER", "SETGID", "SETUID", "NET_BIND_SERVICE"]
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              memory: 512Mi
+          readinessProbe:
+            httpGet:
+              path: /wp-login.php
+              port: http
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /wp-login.php
+              port: http
+            initialDelaySeconds: 60
+            periodSeconds: 20
+            timeoutSeconds: 5
+          volumeMounts:
+            - name: uploads
+              mountPath: /var/www/html/wp-content/uploads
+            - name: db-secret
+              mountPath: /run/secrets/db
+              readOnly: true
+      volumes:
+        - name: uploads
+          persistentVolumeClaim:
+            claimName: wordpress-uploads
+        - name: db-secret
+          secret:
+            secretName: wordpress-db
+            items:
+              - key: mysql-user
+                path: mysql-user
+              - key: mysql-password
+                path: mysql-password

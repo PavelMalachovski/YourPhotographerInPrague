@@ -61,7 +61,8 @@ jobs:
   terraform_apply:
     name: terraform_apply
     runs-on: ubuntu-latest
-    needs: [security_scan]
+    # Deploys the image built by the docker job (tag = first 12 chars of the SHA).
+    needs: [security_scan, docker]
     # Protected environment: configure required reviewers and restrict
     # deployment branches to `master` in Settings -> Environments.
     # The AWS apply role trusts ONLY this environment (see terraform/bootstrap).
@@ -86,7 +87,13 @@ jobs:
         env:
           TF_STATE_BUCKET: ${{ vars.TF_STATE_BUCKET }}
           ADMIN_CIDR: ${{ vars.ADMIN_CIDR }}
-        run: bash ./terraform_apply.sh
+          K8S_OVERLAY: ${{ vars.K8S_OVERLAY || 'dev' }}
+          # Environment-scoped secrets (Settings -> Environments -> production)
+          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
+          MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
+        run: |
+          export IMAGE_TAG="${GITHUB_SHA::12}"
+          bash ./terraform_apply.sh
 
   notify:
     name: notify
@@ -102,6 +109,6 @@ jobs:
           token: ${{ secrets.TELEGRAM_TOKEN }}
           message: |
             ${{ github.actor }} pushed to ${{ github.ref_name }}
-            docker: ${{ needs.docker.result }} | terraform: ${{ needs.terraform_apply.result }}
+            docker: ${{ needs.docker.result }} | deploy: ${{ needs.terraform_apply.result }}
             Repository: ${{ github.repository }}
             See changes: https://github.com/${{ github.repository }}/commit/${{ github.sha }}

@@ -90,6 +90,18 @@ done
 CONFIG_FILE="inventory/${CLUSTER_NAME}/hosts.yaml" python3 contrib/inventory_builder/inventory.py "${ADDRESSES[@]}"
 sed -i 's/^[^#]* ip/#&/' "inventory/${CLUSTER_NAME}/hosts.yaml"  # comment ip lines
 
+# Cluster add-ons needed by the app (k8s/) and an admin kubeconfig that
+# points at the master's public IP (written to inventory/<cluster>/artifacts).
+cat > "inventory/${CLUSTER_NAME}/ypip-extra-vars.yaml" <<VARS
+local_path_provisioner_enabled: true
+local_path_provisioner_is_default_storageclass: "true"
+ingress_nginx_enabled: true
+cert_manager_enabled: true
+kubeconfig_localhost: true
+kubeconfig_localhost_ansible_host: true
+supplementary_addresses_in_ssl_keys: ["${MASTERNODE_PUBLIC_IP}"]
+VARS
+
 echo "============================================================================="
 echo "Run kubespray playbook"
 echo "============================================================================="
@@ -98,4 +110,9 @@ ANSIBLE_SSH_ARGS="-o StrictHostKeyChecking=accept-new -o UserKnownHostsFile=${HO
 ansible-playbook -i "inventory/${CLUSTER_NAME}/hosts.yaml" cluster.yml \
   --private-key "${SSH_KEY}" \
   -e 'ansible_python_interpreter=/usr/bin/python3 ansible_user=ubuntu' \
+  -e "@inventory/${CLUSTER_NAME}/ypip-extra-vars.yaml" \
   -b --become-user=root --flush-cache
+
+KUBECONFIG_OUT="${TF_DIR}/kubespray/inventory/${CLUSTER_NAME}/artifacts/admin.conf"
+chmod 600 "${KUBECONFIG_OUT}"
+echo "Admin kubeconfig: ${KUBECONFIG_OUT}"

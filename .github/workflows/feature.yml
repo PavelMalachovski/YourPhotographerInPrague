@@ -61,6 +61,21 @@ jobs:
             terraform -chdir="$d" validate
           done
 
+  k8s_lint:
+    name: k8s_lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Render kustomize overlays
+        run: |
+          for o in dev production; do
+            echo "== $o"
+            kubectl kustomize "k8s/overlays/$o" > "/tmp/k8s-$o.yaml"
+            grep -c '^kind:' "/tmp/k8s-$o.yaml"
+          done
+
   docker_build:
     name: docker_build
     runs-on: ubuntu-latest
@@ -76,7 +91,7 @@ jobs:
   terraform_plan:
     name: terraform_plan
     runs-on: ubuntu-latest
-    needs: [security_scan, terraform_lint]
+    needs: [security_scan, terraform_lint, k8s_lint]
     # PRs from forks get no OIDC token / secrets.
     if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
     permissions:

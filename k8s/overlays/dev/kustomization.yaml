@@ -1,0 +1,5 @@
+# Dev: plain HTTP on the node public IPs (no domain needed).
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../base

@@ -41,3 +41,6 @@ backend.hcl
 
 # kubespray checkout created by kubespray.sh
 terraform/YPIP/development/kubespray/
+
+# Temporary kustomize overlay created by deploy_app.sh
+k8s/overlays/.deploy/

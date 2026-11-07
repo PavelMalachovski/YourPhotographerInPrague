@@ -44,3 +44,9 @@ echo "Run kubespray setup"
 echo "============================================================================="
 cd "${PROJECT_DIR}"
 bash ./kubespray.sh "${m1_ip}" "${w1_ip}" "${w2_ip}"
+
+echo "============================================================================="
+echo "Deploy application"
+echo "============================================================================="
+KUBECONFIG="${PROJECT_DIR}/terraform/YPIP/development/kubespray/inventory/my_kubespray_k8s/artifacts/admin.conf" \
+  bash ./deploy_app.sh

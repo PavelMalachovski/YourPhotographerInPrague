@@ -6,6 +6,7 @@ framework:
   - terraform
   - dockerfile
   - github_actions
+  - kubernetes
   - secrets
 skip-path:
   # Third-party WordPress theme/plugin code, not ours to fix.

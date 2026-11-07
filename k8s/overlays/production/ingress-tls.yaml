@@ -1,0 +1,14 @@
+- op: add
+  path: /metadata/annotations/cert-manager.io~1cluster-issuer
+  value: letsencrypt
+- op: add
+  path: /metadata/annotations/nginx.ingress.kubernetes.io~1force-ssl-redirect
+  value: "true"
+- op: add
+  path: /spec/tls
+  value:
+    - hosts: ["example.com"]
+      secretName: wordpress-tls
+- op: add
+  path: /spec/rules/0/host
+  value: example.com
