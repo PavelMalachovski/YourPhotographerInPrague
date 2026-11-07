@@ -9,8 +9,10 @@ Kubernetes cluster (kubespray) → containerised WordPress + MySQL, delivered by
 
 ## Stack
 - **Terraform**: EC2 (encrypted EBS, IMDSv2), Elastic IPs, least-privilege security group,
-  S3 remote state with native locking; bootstrap stack for state bucket + GitHub OIDC roles
+  S3 remote state with native locking; bootstrap stack for state bucket + GitHub OIDC roles with a least-privilege, tag-scoped deploy policy
 - **kubespray** `v2.26.0` on Ubuntu 22.04
+- **Kubernetes (kustomize)**: WordPress Deployment + MySQL StatefulSet, PVCs (local-path),
+  ingress-nginx, cert-manager TLS, NetworkPolicies, Pod Security Admission, secrets as files
 - **Docker / Compose**: WordPress 6 (PHP 8.3), MySQL 8.4, phpMyAdmin (on demand, localhost only)
 - **GitHub Actions**: OIDC to AWS (no static keys), SHA-pinned actions, Gitleaks + Checkov
   security gates, `terraform fmt/validate/plan` on branches, gated `apply` on `master`
@@ -38,6 +40,7 @@ cp backend.hcl.example backend.hcl   # set bucket
 terraform init -backend-config=backend.hcl
 TF_VAR_admin_cidr_blocks='["<your-ip>/32"]' terraform apply
 ```
+`terraform_apply.sh` then runs kubespray and `deploy_app.sh`, which applies `k8s/overlays/<dev|production>`.
 In CI, the same steps run in `.github/workflows/master.yml`. See the setup checklist in the audit doc.
 
 ### How to migrate the WordPress website

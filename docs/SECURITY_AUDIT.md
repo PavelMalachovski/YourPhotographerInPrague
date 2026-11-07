@@ -110,7 +110,25 @@ no longer runs with `-vvv` (which dumps variables, tokens and certificates into 
 | M2 | EOL / unpinned software: Ubuntu 18.04, MySQL 5.7, `wordpress:latest`, unpinned kubespray `master` | Fixed: Ubuntu 22.04 (Canonical-owned AMI), MySQL 8.4 LTS, `wordpress:6-php8.3-apache`, kubespray `v2.26.0` |
 | M3 | Root `main.tf` ran `git add . && git commit && git push` from Terraform (risk of committing secrets/state) | Fixed: removed |
 | M4 | 377 client photos (166 MB) in a public repo: third-party copyright and likenesses | Fixed: removed from tree and history, git-ignored |
+| M6 | CI apply role had `AmazonEC2FullAccess` | Fixed: custom policy with only the actions the stack uses, locked to the region and this account; destructive actions are allowed only on resources tagged `Project` |
 | M5 | Third-party plugins in the repo are not updated automatically | Open: plugins should be managed with Composer/WP-CLI instead of being vendored |
+
+## Kubernetes workload hardening (`k8s/`)
+
+- Namespace `ypip` with Pod Security Admission: `enforce: baseline`, `warn: restricted`.
+- NetworkPolicies: default-deny ingress; only `ingress-nginx → wordpress:80`
+  and `wordpress → mysql:3306` are allowed.
+- DB credentials live in a Kubernetes Secret created at deploy time by
+  `deploy_app.sh` from GitHub environment secrets. They are mounted as **files** (`*_FILE`), not env vars.
+- MySQL runs as non-root (UID 999). WordPress drops all capabilities except the
+  six Apache needs. `allowPrivilegeEscalation: false`, `seccomp: RuntimeDefault`,
+  and no service-account token is mounted.
+- Immutable image tags (git SHA) at deploy time, memory limits, liveness/readiness probes.
+- `production` overlay: TLS via cert-manager + Let's Encrypt, HTTP→HTTPS redirect.
+- Accepted risks are annotated on each workload (`checkov.io/skip*`) with the reason.
+
+> The securityContext settings were validated statically (kustomize build + Checkov),
+> not yet on a running cluster.
 
 ## Applying the history rewrite
 
@@ -130,5 +148,7 @@ Afterwards:
 1. `cd terraform/bootstrap && terraform init && terraform apply -var state_bucket_name=<unique>`
 2. Repository **variables**: `TF_STATE_BUCKET`, `AWS_PLAN_ROLE_ARN`, `AWS_APPLY_ROLE_ARN`, `ADMIN_CIDR` (e.g. `203.0.113.10/32`).
 3. Repository **secrets**: `MY_DOCKERHUB_USERNAME`, `MY_DOCKERHUB_TOKEN` (Docker Hub access token, not the password), `TELEGRAM_TO`, `TELEGRAM_TOKEN`.
+   **Environment `production` secrets**: `MYSQL_ROOT_PASSWORD`, `MYSQL_PASSWORD` (`openssl rand -base64 24`).
+   Optional variable `K8S_OVERLAY=production`, after you set the domain and e-mail in `k8s/overlays/production/`.
    Delete the old `MY_AWS_ACCESS_KEY`, `MY_AWS_SECRET_KEY` and `MY_DOCKERHUB_PASSWORD`, and deactivate that IAM access key.
 4. Settings → Environments → `production`: required reviewer, deployment branch `master`.
